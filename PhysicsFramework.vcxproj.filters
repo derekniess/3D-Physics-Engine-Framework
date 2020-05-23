@@ -1,0 +1,414 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Managers">
+      <UniqueIdentifier>{dc491068-6f37-4a05-9698-23022c1f03a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entities">
+      <UniqueIdentifier>{a79942a7-db41-45b5-86db-e0eadd4f99f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Interfaces">
+      <UniqueIdentifier>{55ffe22c-2052-4bfe-9c2c-6730436db248}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Managers">
+      <UniqueIdentifier>{a60597ce-e043-4e00-a1bb-d3908621bbdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{a083b280-661d-4c99-8be7-40c4fa83555a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{56239b23-e6d1-40b1-8cd4-120f094b5542}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{49024d6a-f0d5-4650-8207-acbaaf343fad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{636e58d1-781f-4427-8aaf-5ef1ac099a09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{dbf3f270-2212-4f81-8426-0d1c85a61df1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Archetypes">
+      <UniqueIdentifier>{3d9990e3-969d-4896-b10c-1b0b5a03fbcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Widgets">
+      <UniqueIdentifier>{72beb7ef-532c-4b08-aaf6-fbaaa0710217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Widgets">
+      <UniqueIdentifier>{de5ed7e1-6eeb-41bc-9b41-769a77f931b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{9b9e9ac6-e422-41da-a162-db598e3bec90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities\RenderUtilities">
+      <UniqueIdentifier>{f05e0f1b-629a-48b0-a804-7a4c88544f71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities\ResourceUtilities">
+      <UniqueIdentifier>{8020916c-13a0-4372-a9ed-b97c3919e980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities\PhysicsUtilities">
+      <UniqueIdentifier>{e699f5b8-8b69-4bd4-95e5-95af3ad5dd3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities\RenderUtilities">
+      <UniqueIdentifier>{a51f1cf6-3dd3-43ba-91e8-6b7be8938731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Primitives">
+      <UniqueIdentifier>{b9ea4580-1048-44ca-8eff-8b6f5ec1ed86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Primitives">
+      <UniqueIdentifier>{3d58b6e9-4dca-4694-b8fe-05653801e7ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders">
+      <UniqueIdentifier>{332159de-98df-44fb-9afc-83bef5471167}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders\Lines">
+      <UniqueIdentifier>{e0386d48-6bb0-4809-8465-8491a5094b1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders\Normals">
+      <UniqueIdentifier>{b4d4998e-1aa9-4a19-9319-8474a3003f62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders\Quads">
+      <UniqueIdentifier>{6d52e6f0-2770-440d-b4a0-25a3f6fe8d3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DefaultShaders">
+      <UniqueIdentifier>{b9168f3c-76a2-4409-a66c-e3840e7945e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Factories">
+      <UniqueIdentifier>{739f690e-c20b-41d4-9dbd-b4347ad3534c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Factories">
+      <UniqueIdentifier>{2ebe9759-8db0-4c24-b357-0b757726532f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ScriptBehaviors">
+      <UniqueIdentifier>{4d44c922-3c59-4d74-80a3-1af2f862f9a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScriptBehaviors">
+      <UniqueIdentifier>{4dec3941-8001-4e34-bebb-f4d02e5fdeb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Colliders">
+      <UniqueIdentifier>{ed78ac4f-3504-4c86-ab6f-de0c42594e1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Entities\Constraints">
+      <UniqueIdentifier>{8a788e74-80bb-4767-b057-d05e874c21da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities\Constraints">
+      <UniqueIdentifier>{472e2503-a427-488e-a56b-bb79ed17dbc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Colliders">
+      <UniqueIdentifier>{7396e9c7-19ab-47df-8c72-6332dec9a52f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRateController.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Subject.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Observer.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiWidget.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldOutlinerWidget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowMenuBarWidget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilityFunctions.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="RawLumpHandler.h">
+      <Filter>Header Files\Utilities\ResourceUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="TextLumpHandler.h">
+      <Filter>Header Files\Utilities\ResourceUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsUtilities.h">
+      <Filter>Header Files\Utilities\PhysicsUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitive.h">
+      <Filter>Header Files\Components\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Header Files\Components\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Components\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSettingsWidget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineStateManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugVertex.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectFactory.h">
+      <Filter>Header Files\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugFactory.h">
+      <Filter>Header Files\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="LineLoop.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Arrow.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveSolver.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptBehavior.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Header Files\Components\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Header Files\Components\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="Constraint.h">
+      <Filter>Header Files\Entities\Constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="ContactConstraint.h">
+      <Filter>Header Files\Entities\Constraints</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameRateController.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Subject.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files\Utilities\RenderUtilities</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldOutlinerWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowMenuBarWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="UtilityFunctions.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitive.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSettingsWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineStateManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Arrow.cpp">
+      <Filter>Source Files\Utilities\RenderUtilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectFactory.cpp">
+      <Filter>Source Files\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugFactory.cpp">
+      <Filter>Source Files\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveSolver.cpp">
+      <Filter>Source Files\ScriptBehaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>Source Files\Components\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="ContactConstraint.cpp">
+      <Filter>Source Files\Entities\Constraints</Filter>
+    </ClCompile>
+    <ClCompile Include="Constraint.cpp">
+      <Filter>Source Files\Entities\Constraints</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DefaultFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DefaultShaders</Filter>
+    </None>
+    <None Include="DefaultGeometryShader.glsl">
+      <Filter>Source Files\Shaders\DefaultShaders</Filter>
+    </None>
+    <None Include="DefaultVertexShader.glsl">
+      <Filter>Source Files\Shaders\DefaultShaders</Filter>
+    </None>
+    <None Include="ClassDiagram.cd" />
+    <None Include="LineVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Lines</Filter>
+    </None>
+    <None Include="LineFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Lines</Filter>
+    </None>
+    <None Include="NormalsFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
+    </None>
+    <None Include="NormalsGeometryShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
+    </None>
+    <None Include="QuadVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Quads</Filter>
+    </None>
+    <None Include="QuadFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Quads</Filter>
+    </None>
+    <None Include="NormalsVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resources\Flare.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="3D-Physics-Engine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Cube.txt">
+      <Filter>Header Files\Archetypes</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

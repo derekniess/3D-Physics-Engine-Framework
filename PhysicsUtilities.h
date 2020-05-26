@@ -82,10 +82,13 @@ struct PolytopeEdge
 
 struct ContactData
 {
-	// Contact point data
+	// Contact point data - World Space
 	glm::vec3 ContactPositionA_WS;
 	glm::vec3 ContactPositionB_WS;
-	
+	// Contact point data - Local Space
+	glm::vec3 ContactPositionA_LS;
+	glm::vec3 ContactPositionB_LS;
+
 	// These 3 vectors form an orthonormal basis
 	glm::vec3 Normal; // From collider A to collider B
 	glm::vec3 Tangent1, Tangent2;
@@ -95,3 +98,4 @@ struct ContactData
 	glm::mat4 LocalToWorldMatrixA;
 	glm::mat4 LocalToWorldMatrixB;
 };
+

@@ -600,25 +600,31 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	float bary_u, bary_v, bary_w;
 	Utility::BarycentricProjection(aClosestFace->FaceNormal * distanceFromOrigin, aClosestFace->Points[0].MinkowskiHullVertex, aClosestFace->Points[1].MinkowskiHullVertex, aClosestFace->Points[2].MinkowskiHullVertex, bary_u, bary_v, bary_w);
 	
-	// if any of the barycentric coefficients have a magnitude greater than 1, then the origin is not within the triangular prism described by 'triangle'
+	// if any of the barycentric coefficients have a magnitude greater than 1 or lesser than and equal to 0, then the origin is not within the triangular prism described by 'triangle'
 	// thus, there is no collision here, return false
 	if (fabs(bary_u) > 1.0f || fabs(bary_v) > 1.0f || fabs(bary_w) > 1.0f)
 		return false;
+	if (bary_u <= 0.0f || bary_v <= 0.0f || bary_w <= 0.0f)
+		return false;
 
-	glm::vec3 supportWorld1 = aClosestFace->Points[0].World_SupportPointA;
-	glm::vec3 supportWorld2 = aClosestFace->Points[1].World_SupportPointA;
-	glm::vec3 supportWorld3 = aClosestFace->Points[2].World_SupportPointA;
-
-	// Contact points
+	// A Contact points
+	glm::vec3 supportLocal1 = aClosestFace->Points[0].Local_SupportPointA;
+	glm::vec3 supportLocal2 = aClosestFace->Points[1].Local_SupportPointA;
+	glm::vec3 supportLocal3 = aClosestFace->Points[2].Local_SupportPointA;
+	// Contact point on object A in local space
+	aContactData.ContactPositionA_LS = (bary_u * supportLocal1) + (bary_v * supportLocal2) + (bary_w * supportLocal3);
 	// Contact point on object A in world space
-	aContactData.ContactPositionA_WS = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
+	aContactData.ContactPositionA_WS = aContactData.LocalToWorldMatrixA * glm::vec4(aContactData.ContactPositionA_LS, 1);
 
-	supportWorld1 = aClosestFace->Points[0].World_SupportPointB;
-	supportWorld2 = aClosestFace->Points[1].World_SupportPointB;
-	supportWorld3 = aClosestFace->Points[2].World_SupportPointB;
-
+	// B contact points
+	supportLocal1 = aClosestFace->Points[0].Local_SupportPointB;
+	supportLocal2 = aClosestFace->Points[1].Local_SupportPointB;
+	supportLocal3 = aClosestFace->Points[2].Local_SupportPointB;
+	// Contact point on object B in local space
+	aContactData.ContactPositionB_LS = (bary_u * supportLocal1) + (bary_v * supportLocal2) + (bary_w * supportLocal3);
 	// Contact point on object B in world space
-	aContactData.ContactPositionB_WS = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
+	aContactData.ContactPositionB_WS = aContactData.LocalToWorldMatrixB * glm::vec4(aContactData.ContactPositionB_LS, 1);
+
 	// Contact normal
 	aContactData.Normal = glm::normalize(aClosestFace->FaceNormal);
 	// Penetration depth

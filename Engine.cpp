@@ -111,6 +111,7 @@ void Engine::Load()
 	GameObject * pivot = pGameObjectFactory->SpawnGameObject();
 	Mesh * pivotMesh = pResourceManager->ImportMesh(std::string("Pivot.fbx"));
 	pivot->GetComponent<Transform>()->SetScale(glm::vec3(0.1f, -0.1f, -0.1f));
+
 	pivot->AddComponent(pivotMesh);
 	pivotMesh->RenderDebug = false;
 
@@ -128,6 +129,7 @@ void Engine::Load()
 	// Falling cube
 	GameObject * cube1 = pGameObjectFactory->SpawnGameObject();
 	cube1->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 5.0f, 3.0f));
+
 	Mesh * cube1Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
 	cube1->AddComponent(cube1Mesh);
 	Physics * physics1 = pGameObjectFactory->SpawnComponent<Physics>();

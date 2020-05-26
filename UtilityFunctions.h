@@ -78,4 +78,18 @@ namespace Utility
 	}
 
 	void CalculateMinkowskiDifference(std::vector<Vertex> & aMinkowskiDifference, Mesh * aShape1, Mesh * aShape2);
+
+	// Optimized vector rotation by quaternion
+	// https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
+	inline glm::vec3 RotateVectorByQuaternion(glm::vec3 aVector, glm::quat aQuat)
+	{
+		// Extract the vector part of the quaternion
+		glm::vec3 u(aQuat.x, aQuat.y, aQuat.z);
+		// Extract the scalar part of the quaternion
+		float s = aQuat.w;
+		// Do the math
+		return ((2.0f * glm::dot(u, aVector) * u) 
+			   + (s * s - glm::dot(u, u)) * aVector
+			   + 2.0f * s * glm::cross(u, aVector));
+	}
 }

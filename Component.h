@@ -22,6 +22,7 @@ public:
 		CONTROLLER,
 		SCRIPT,
 		COLLIDER,
+		LIGHT,
 		TypeCount
 	};
 	// List of the component type names

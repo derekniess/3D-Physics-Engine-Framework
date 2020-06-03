@@ -94,8 +94,49 @@ struct ContactData
 	glm::vec3 Tangent1, Tangent2;
 
 	float PenetrationDepth;
-
-	glm::mat4 LocalToWorldMatrixA;
-	glm::mat4 LocalToWorldMatrixB;
 };
 
+
+struct ContactManifold
+{
+	// Slot of this manifold in the manifold objects list
+	int ManifoldSlot = 0;
+	// Slot of contact constraint associated with this manifold
+	int ConstraintID = 0; 
+	ContactData ManifoldPoints[4];
+	int Size = 0;
+
+	ContactData &a;
+	ContactData &b;
+	ContactData &c;
+	ContactData &d;
+
+	void ValidateAllContacts();
+	void ValidateNewContact();
+	void EliminateExtraContacts();
+
+	inline void Clear() { Size = 0; }
+	ContactManifold() :
+		a(ManifoldPoints[0]),
+		b(ManifoldPoints[1]),
+		c(ManifoldPoints[2]),
+		d(ManifoldPoints[3])
+	{}
+
+	inline void Set(ContactData a, ContactData b, ContactData c, ContactData d) { Size = 4, this->a = a; this->b = b; this->c = c; this->d = d; }
+	inline void Set(ContactData a, ContactData b, ContactData c) { Size = 3, this->a = a; this->b = b; this->c = c; }
+	inline void Set(ContactData a, ContactData b) { Size = 2, this->a = a; this->b = b; }
+	inline void Set(ContactData a) { Size = 1, this->a = a; }
+
+	// Most recently added point is always added to the start of the list.
+	// With every insertion all existing entries are shifted one to the right
+	inline void Push(ContactData aNewContact)
+	{
+		Size = std::min(Size + 1, 4);
+
+		for (int i = Size - 1; i > 0; i--)
+			ManifoldPoints[i] = ManifoldPoints[i - 1];
+
+		ManifoldPoints[0] = aNewContact;
+	}
+};

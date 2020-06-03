@@ -23,13 +23,15 @@ public:
 	// Lagrangian multiplier/ magnitude of impulse to resolve the constraint, in constraint space
 	float ImpulseMagnitude = 0.0f;
 	// 'Initial Guess' at ImpulseMagnitude
-	static const int InitialLambda = 1;
+	static float InitialLambda;
 	// η (or) 'Eta' value, updated every iteration of the solver
 	float Catto_Eta = 0.0f;
 	// ∆λi value, updated every iteration of the solver
 	float DeltaLambda = 0.0f;
 	// index in ConstraintObjectsList
 	int ConstraintSlot = 0;
+	// 'Effective' mass of constraint system
+	float EffectiveMass = 0.0f;
 	/*-----------MEMBER FUNCTIONS-----------*/
 public:
 	Constraint(Collider & aColliderA, Collider & aColliderB) :
@@ -40,7 +42,7 @@ public:
 		CalculateInverseMassMatrices();
 	}
 	// All constraints must implement how the solver will handle them
-	virtual float Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector) = 0;
+	virtual float Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aCurrentVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector) = 0;
 	// All constraints have different components for their Jacobians, hence calculation is left up to child class
 	virtual void CalculateJacobian() = 0;
 

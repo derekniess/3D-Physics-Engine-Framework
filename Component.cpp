@@ -7,5 +7,6 @@ const char * Component::ComponentTypeName[Component::ComponentType::TypeCount] =
 	"Physics",
 	"Controller",
 	"Script",
-	"Collider"
+	"Collider",
+	"Light"
 };

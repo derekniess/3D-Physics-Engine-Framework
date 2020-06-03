@@ -16,28 +16,24 @@
 #include "ContactConstraint.h"
 
 #include "UtilityFunctions.h"
+#include "MathUtilities.h"
 
 int PhysicsManager::IntegratorIterations = 1;
 
 void PhysicsManager::Update()
 {
-	/*  From 'Iterative Dynamics'
-	Clearly position error will converge if and only if 0 < β < 2/∆t. If 0 < β ≤ 1/∆t then the
-	position error will decay smoothly to zero. If 1/∆t < β < 2/∆t then the position
-	error will decay with an oscillation. 
-	*/
-	//BaumgarteScalar = 1 / (2 * EngineHandle.GetFramerateController().DeltaTime);
-
 	// Three Stages
 	// Simulation : Update the state of all Physics objects
-	Simulation();
+	if (bShouldSimulate == true)
+		Simulation();
 
 	// Collision Detection : Check every Collider for collision against every other Collider
 	DetectCollision();
 
 	// Constraint Resolution: Solve all the constraints that were violated this frame using sequential impulse solver
 	// http://www.bulletphysics.com/ftp/pub/test/physics/papers/IterativeDynamics.pdf
-	SolveConstraints();
+	if(bShouldSimulate == true)
+		SolveConstraints();
 }
 
 void PhysicsManager::DetectCollision()
@@ -68,18 +64,18 @@ void PhysicsManager::DetectCollision()
 			scale = glm::scale(transform2->GetScale());
 			model2 = translate * rotate * scale;
 
-			newContactData.LocalToWorldMatrixA = model1;
-			newContactData.LocalToWorldMatrixB = model2;
+			collider1->LocalToWorldMatrix = model1;
+			collider2->LocalToWorldMatrix = model2;
 
 			// Set to Red if colliding, Green if not colliding
 			if (GJKCollisionHandler(collider1, collider2, newContactData))
 			{
 				// Check if contact constraint between these two bodies already exists before adding another one
 				bool bAlreadyExists = false;
+				ContactConstraint * contactConstraint = nullptr;
 
 				for (Constraint * constraint : ConstraintObjectsList)
 				{
-					ContactConstraint * contactConstraint = nullptr;
 					contactConstraint = dynamic_cast<ContactConstraint *>(constraint);
 					if (contactConstraint)
 					{
@@ -100,6 +96,29 @@ void PhysicsManager::DetectCollision()
 
 					// Register it to be resolved later
 					RegisterConstraintObject(newConstraint);
+
+				//	// Create manifold that contains the new contact point
+				//	ContactManifold * newManifold = new ContactManifold();
+				//	newManifold->ConstraintID = newConstraint->ConstraintSlot;
+
+				//	// Register manifold to keep track of it later
+				//	RegisterManifoldObject(newManifold);
+				//	// Add new point to manifold
+				//	newManifold->Push(newContactData);
+				}
+				else
+				{
+					// If contact constraint (and therefore manifold) already exist, add new point to manifold 
+					//ContactManifold * manifold = ManifoldObjectsList[contactConstraint->ManifoldID];
+					//manifold->Push(newContactData);
+
+					//// Create new constraint for new contact point
+					//ContactConstraint * newConstraint = new ContactConstraint(*collider1, *collider2);
+					//newConstraint->ConstraintData = newContactData;
+					//newConstraint->CalculateJacobian();
+
+					//// Register it to be resolved later
+					//RegisterConstraintObject(newConstraint);
 				}
 
 				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
@@ -140,7 +159,7 @@ bool PhysicsManager::GJKCollisionHandler(Collider * aCollider1, Collider * aColl
 	// Choose initial search direction as the vector from center of Object1 to the center of Object2
 	glm::vec3 searchDirection = physics1->GetCurrentPosition() - physics2->GetCurrentPosition();
 	// Find farthest point along search direction to get first point on the Minkowski surface, and add it to the simplex
-	SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
+	SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
 	simplex.Push(newSupportPoint);
 
 	// Invert the search direction for the next point
@@ -151,11 +170,11 @@ bool PhysicsManager::GJKCollisionHandler(Collider * aCollider1, Collider * aColl
 
 	while (true)
 	{
-		if (iterationCount++ >= iterationLimit) return false;
+		if (iterationCount++ >= iterationLimit) 
+			return false;
 
 		// Add a new point to the simplex, continuing to search for origin
-		SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
-		simplex.Push(newSupportPoint);
+		SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
 
 		// If projection of newly added point along the search direction has not crossed the origin,
 		// the Minkowski Difference could not contain the origin, objects are not colliding
@@ -165,21 +184,22 @@ bool PhysicsManager::GJKCollisionHandler(Collider * aCollider1, Collider * aColl
 		}
 		else
 		{
-			// Render simplex
-			if (EngineHandle.GetEngineStateManager().bShouldRenderSimplex)
-			{
-				LineLoop simplexDebug;
-				simplexDebug.AddVertex(simplex.Vertices[0].MinkowskiHullVertex);
-				simplexDebug.AddVertex(simplex.Vertices[1].MinkowskiHullVertex);
-				simplexDebug.AddVertex(simplex.Vertices[2].MinkowskiHullVertex);
-				simplexDebug.AddVertex(simplex.Vertices[3].MinkowskiHullVertex);
-				EngineHandle.GetDebugFactory().RegisterDebugLineLoop(simplexDebug);
-			}
+			simplex.Push(newSupportPoint);
+			//// Render simplex
+			//if (EngineHandle.GetEngineStateManager().bShouldRenderSimplex)
+			//{
+			//	LineLoop simplexDebug;
+			//	simplexDebug.AddVertex(simplex.Vertices[0].MinkowskiHullVertex);
+			//	simplexDebug.AddVertex(simplex.Vertices[1].MinkowskiHullVertex);
+			//	simplexDebug.AddVertex(simplex.Vertices[2].MinkowskiHullVertex);
+			//	simplexDebug.AddVertex(simplex.Vertices[3].MinkowskiHullVertex);
+			//	EngineHandle.GetDebugFactory().RegisterDebugLineLoop(simplexDebug);
+			//}
 			// If the new point IS past the origin, check if the simplex contains the origin
 			if (CheckIfSimplexContainsOrigin(simplex, searchDirection))
 			{
 				return EPAContactDetection(simplex, aCollider1, aCollider2, aContactData);
-			}
+			} 
 		}
 	}
 }
@@ -360,7 +380,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 		}
 
 		glm::vec3 edge2Normal = glm::cross(face1Normal, edge2);
-		if (glm::dot(edge1Normal, newPointToOrigin) > 0.0f)
+		if (glm::dot(edge2Normal, newPointToOrigin) > 0.0f)
 		{
 			aSearchDirection = Utility::TripleCrossProduct(edge2, newPointToOrigin, edge2);
 			// Origin is along the normal of edge2, set the simplex to that edge [A, C]
@@ -375,6 +395,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 		aSimplex.Set(aSimplex.a, aSimplex.b, aSimplex.c);
 		return false;
 	}
+	return false;
 }
 
 void PhysicsManager::SolveConstraints()
@@ -415,8 +436,12 @@ void PhysicsManager::SolveConstraints()
 		}
 	}
 	// Refine the Lagrangian multiplier 'λ' using Gauss-Siedel solver
-	for (int iterations = 0; iterations < 1; ++iterations)
+	for (int iterations = 0; iterations < ConstraintSolverIterations; ++iterations)
 	{
+		// When all constraints are solved, return
+		if (ConstraintObjectsList.size() == 0)
+			return;
+		int size = ConstraintObjectsList.size();
 		for (int i = 0; i < ConstraintObjectsList.size(); ++i)
 		{
 			Constraint * constraint = nullptr;
@@ -428,15 +453,17 @@ void PhysicsManager::SolveConstraints()
 			{
 				Physics & physicsA = *constraint->ColliderA->pOwner->GetComponent<Physics>();
 				Physics & physicsB = *constraint->ColliderB->pOwner->GetComponent<Physics>();
-
+				
 				// Putting the bodies quantities in a matrix form like this allows for a convenient transformation when multiplied by inverse mass matrix
 				// Each quantity is multiplied against the value that corresponds to it (Inertia/angular velocity/torque and Mass/linear velocity/force)
-				Eigen::Matrix<float, 12, 1> velocityVector; // Column vector
-				velocityVector << physicsA.LinearVelocity.x, physicsA.LinearVelocity.y, physicsA.LinearVelocity.z,
-								  physicsA.AngularVelocity.x, physicsA.AngularVelocity.y, physicsA.AngularVelocity.z,
-								  physicsB.LinearVelocity.x, physicsB.LinearVelocity.y, physicsB.LinearVelocity.z,
-								  physicsB.AngularVelocity.x, physicsB.AngularVelocity.y, physicsB.AngularVelocity.z;
-
+				// V2
+				Eigen::Matrix<float, 12, 1> currentVelocityVector; // Column vector
+				currentVelocityVector << physicsA.CurrentLinearVelocity.x, physicsA.CurrentLinearVelocity.y, physicsA.CurrentLinearVelocity.z,
+								  physicsA.CurrentAngularVelocity.x, physicsA.CurrentAngularVelocity.y, physicsA.CurrentAngularVelocity.z,
+								  physicsB.CurrentLinearVelocity.x, physicsB.CurrentLinearVelocity.y, physicsB.CurrentLinearVelocity.z,
+								  physicsB.CurrentAngularVelocity.x, physicsB.CurrentAngularVelocity.y, physicsB.CurrentAngularVelocity.z;
+				
+				// Fext
 				Eigen::Matrix<float, 12, 1> externalForceVector; // Column vector
 				externalForceVector << physicsA.Force.x, physicsA.Force.y, physicsA.Force.z,
 									   physicsA.Torque.x, physicsA.Torque.y, physicsA.Torque.z,
@@ -444,13 +471,22 @@ void PhysicsManager::SolveConstraints()
 									   physicsB.Torque.x, physicsB.Torque.y, physicsB.Torque.z;
 
 				// Each type of constraint calls its own solver
-				deltaLambda = constraint->Solve(deltaTime, catto_A, velocityVector, externalForceVector);
+				deltaLambda = constraint->Solve(deltaTime, catto_A, currentVelocityVector, externalForceVector);
+
+				// Remove this constraint if it falls below threshold
+				if (abs(deltaLambda) < 0.0000000001f)
+				{
+					std::cout << "Discarding constraint! \n";
+					std::swap(ConstraintObjectsList[i], ConstraintObjectsList.back());
+					ConstraintObjectsList.pop_back();
+					break;
+				}
 
 				// Get force of constraint for each body using the Lagrangian multiplier for magnitude and corresponding Jacobian for direction
 				Eigen::Matrix<float, 6, 1> constraintForceA = constraint->ColliderA->ContactJacobian.transpose() * deltaLambda * deltaTime;
 				Eigen::Matrix<float, 6, 1> constraintForceB = constraint->ColliderB->ContactJacobian.transpose() * deltaLambda * deltaTime;
 
-				glm::vec3 forceA(constraintForceA(0), constraintForceA(1), constraintForceA(2)), torqueA(constraintForceA(3), constraintForceA(4), constraintForceA(5));
+ 				glm::vec3 forceA(constraintForceA(0), constraintForceA(1), constraintForceA(2)), torqueA(constraintForceA(3), constraintForceA(4), constraintForceA(5));
 				glm::vec3 forceB(constraintForceB(0), constraintForceB(1), constraintForceB(2)), torqueB(constraintForceB(3), constraintForceB(4), constraintForceB(5));
 
 				// Zero out forces if either object is static
@@ -464,6 +500,13 @@ void PhysicsManager::SolveConstraints()
 					forceB *= 0;
 					torqueB *= 0;
 				}
+
+				// Store previous velocities before updating
+				physicsA.PreviousLinearVelocity = physicsA.CurrentLinearVelocity;
+				physicsB.PreviousLinearVelocity = physicsB.CurrentLinearVelocity;
+
+				physicsA.PreviousAngularVelocity = physicsA.CurrentAngularVelocity;
+				physicsB.PreviousAngularVelocity = physicsB.CurrentAngularVelocity;
 
 				// Create inverse mass matrices
 				glm::mat3 inverseMassMatrixA = glm::mat3(1), inverseMassMatrixB = glm::mat3(1);
@@ -481,19 +524,18 @@ void PhysicsManager::SolveConstraints()
 				inverseInertiaTensorA = rotationMatrixA * inverseInertiaTensorA * glm::transpose(rotationMatrixA);
 				inverseInertiaTensorB = rotationMatrixB * inverseInertiaTensorB *  glm::transpose(rotationMatrixB);
 
-				physicsA.LinearVelocity += inverseMassMatrixA * forceA;
-				physicsA.AngularVelocity += inverseInertiaTensorA * torqueA;
+				physicsA.CurrentLinearVelocity += inverseMassMatrixA * forceA;
+				physicsA.CurrentAngularVelocity += inverseInertiaTensorA * torqueA;
 
-				physicsB.LinearVelocity += inverseMassMatrixB * forceB;
-				physicsB.AngularVelocity += inverseInertiaTensorB * torqueB;
+				physicsB.CurrentLinearVelocity += inverseMassMatrixB * forceB;
+				physicsB.CurrentAngularVelocity += inverseInertiaTensorB * torqueB;
 			}
 		}
 	}
-	ConstraintObjectsList.empty();
 }
 
 // Based on the Expanding Polytope Algorithm (EPA) as described here: http://allenchou.net/2013/12/game-physics-contact-generation-epa/
-bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aShape1, Collider * aShape2, ContactData & aContactData)
+bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollider1, Collider * aCollider2, ContactData & aContactData)
 {
 	const float exitThreshold = 0.001f;
 	const unsigned iterationLimit = 50;
@@ -526,7 +568,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aShape1,
 			}
 		}
 		// With the closest face now known, find new support point on the Minkowski Hull using normal to that face
-		SupportPoint newPolytopePoint = Utility::Support(aShape1, aShape2, closestFace->FaceNormal, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
+		SupportPoint newPolytopePoint = Utility::Support(aCollider1, aCollider2, closestFace->FaceNormal, aCollider1->LocalToWorldMatrix,aCollider2->LocalToWorldMatrix);
 
 		// If this new point is within a tolerable limit of the origin, 
 		// assume we have found the closest triangle on the Minkowski Hull to the origin
@@ -554,7 +596,10 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aShape1,
 			EngineHandle.GetDebugFactory().RegisterDebugLineLoop(closestFaceObjectB);
 			EngineHandle.GetDebugFactory().RegisterDebugLineLoop(closestPolytopeFace);
 
-			return ExtrapolateContactInformation(&(*closestFace), aContactData);
+			if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_SPACE))
+				bShouldSimulate = false;
+
+			return ExtrapolateContactInformation(&(*closestFace), aContactData, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
 		}
 
 		// Otherwise, check what faces can be 'seen' from the newly added support point and delete them from the polytope
@@ -591,7 +636,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aShape1,
 // you obtain the closest face to the penetration in world space.
 // Barycentric projection allows you to save the contribution to a point 
 // in a triangle between its vertices, and you can use that to obtain the contact point in world space
-bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData)
+bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData, glm::mat4 & aLocalToWorldMatrixA, glm::mat4 & aLocalToWorldMatrixB)
 {
 	const float distanceFromOrigin = glm::dot(aClosestFace->FaceNormal, aClosestFace->Points[0].MinkowskiHullVertex);
 
@@ -604,9 +649,10 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	// thus, there is no collision here, return false
 	if (fabs(bary_u) > 1.0f || fabs(bary_v) > 1.0f || fabs(bary_w) > 1.0f)
 		return false;
-	if (bary_u <= 0.0f || bary_v <= 0.0f || bary_w <= 0.0f)
+	/*if (bary_u <= 0.0f || bary_v <= 0.0f || bary_w <= 0.0f)
+		return false;*/
+	if (!MathUtilities::IsValid(bary_u) || !MathUtilities::IsValid(bary_v) || !MathUtilities::IsValid(bary_w))
 		return false;
-
 	// A Contact points
 	glm::vec3 supportLocal1 = aClosestFace->Points[0].Local_SupportPointA;
 	glm::vec3 supportLocal2 = aClosestFace->Points[1].Local_SupportPointA;
@@ -614,7 +660,7 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	// Contact point on object A in local space
 	aContactData.ContactPositionA_LS = (bary_u * supportLocal1) + (bary_v * supportLocal2) + (bary_w * supportLocal3);
 	// Contact point on object A in world space
-	aContactData.ContactPositionA_WS = aContactData.LocalToWorldMatrixA * glm::vec4(aContactData.ContactPositionA_LS, 1);
+	aContactData.ContactPositionA_WS = aLocalToWorldMatrixA * glm::vec4(aContactData.ContactPositionA_LS, 1);
 
 	// B contact points
 	supportLocal1 = aClosestFace->Points[0].Local_SupportPointB;
@@ -623,10 +669,10 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	// Contact point on object B in local space
 	aContactData.ContactPositionB_LS = (bary_u * supportLocal1) + (bary_v * supportLocal2) + (bary_w * supportLocal3);
 	// Contact point on object B in world space
-	aContactData.ContactPositionB_WS = aContactData.LocalToWorldMatrixB * glm::vec4(aContactData.ContactPositionB_LS, 1);
+	aContactData.ContactPositionB_WS = aLocalToWorldMatrixB * glm::vec4(aContactData.ContactPositionB_LS, 1);
 
 	// Contact normal
-	aContactData.Normal = glm::normalize(aClosestFace->FaceNormal);
+	aContactData.Normal = aClosestFace->FaceNormal;
 	// Penetration depth
 	aContactData.PenetrationDepth = distanceFromOrigin;
 
@@ -675,12 +721,16 @@ void PhysicsManager::RegisterConstraintObject(Constraint * aNewConstraint)
 	ConstraintObjectsList.push_back(aNewConstraint);
 }
 
+void PhysicsManager::RegisterManifoldObject(ContactManifold * aNewManifold)
+{
+	aNewManifold->ManifoldSlot = (int)ManifoldObjectsList.size();
+	ManifoldObjectsList.push_back(aNewManifold);
+}
+
 void PhysicsManager::Simulation()
 {
 	Physics * pSimulation1 = nullptr, * pSimulation2 = nullptr;
 	float deltatime = EngineHandle.GetFramerateController().DeltaTime;
-	if (!bShouldSimulate)
-		return;
 	// Integration
 	for (int i = 0; i < IntegratorIterations; ++i)
 	{

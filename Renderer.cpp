@@ -8,6 +8,7 @@
 #include "DebugFactory.h"
 #include "GameObject.h"
 #include "Primitive.h"
+#include "Light.h"
 
 #include "UtilityFunctions.h"
 // Render Utilities
@@ -54,7 +55,7 @@ void Renderer::RegisterStaticPrimitive(Primitive * aNewPrimitive)
 			// If a free slot is found, assign its VAO and VBO to the primitive and mark slot as filled
 			aNewPrimitive->VAO = *StaticVAOList[i];
 			aNewPrimitive->VBO = *StaticVBOList[i];
-			aNewPrimitive->SlotID = i;
+			aNewPrimitive->PrimitiveSlot = i;
 			StaticObjectRegistry[i] = true;
 			return;
 		}
@@ -71,7 +72,7 @@ void Renderer::RegisterDynamicPrimitive(Primitive * aNewPrimitive)
 			// If a free slot is found, assign its VAO and VBO to the primitive and mark slot as filled
 			aNewPrimitive->VAO = *DynamicVAOList[i];
 			aNewPrimitive->VBO = *DynamicVBOList[i];
-			aNewPrimitive->SlotID = i;
+			aNewPrimitive->PrimitiveSlot = i;
 			DynamicObjectRegistry[i] = true;
 			return;
 		}
@@ -101,13 +102,13 @@ void Renderer::DeregisterPrimitive(Primitive * aOldPrimitive)
 void Renderer::DeregisterStaticPrimitive(Primitive * aOldPrimitive)
 {
 	// Free slot in static object registry
-	StaticObjectRegistry[aOldPrimitive->SlotID] = false;
+	StaticObjectRegistry[aOldPrimitive->PrimitiveSlot] = false;
 }
 
 void Renderer::DeregisterDynamicPrimitive(Primitive * aOldPrimitive)
 {
 	// Free slot in dynamic object registry
-	DynamicObjectRegistry[aOldPrimitive->SlotID] = false;
+	DynamicObjectRegistry[aOldPrimitive->PrimitiveSlot] = false;
 }
 
 void Renderer::CreateDebugArrowPrimitive()
@@ -132,6 +133,12 @@ void Renderer::CreateDebugQuadPrimitive()
 	newQuad.VAO = DebugQuadPrimitive->VAO;
 	newQuad.VBO = DebugQuadPrimitive->VBO;
 	newQuad.BindVertexData();
+}
+
+void Renderer::RegisterLight(Light * aNewLight)
+{
+	aNewLight->LightSlot = (int)LightList.size();
+	LightList.push_back(aNewLight);
 }
 
 
@@ -185,13 +192,14 @@ void Renderer::InititalizeRenderer()
 	// Create and use default shader program
 	DefaultShader.CreateDefaultShaderProgram();
 	DefaultShader.Use();
-	// Create debug normals shader program, reserve for later
+	// Create debug normals shader program
 	DebugNormalsShader.CreateDebugNormalsShaderProgram();
-	// Create debug mesh shader program, reserve for later
+	// Create debug mesh shader program
 	DebugMeshShader.CreateDebugMeshShaderProgram();
-	// Create debug quads shader program, reserve for later
+	// Create debug quads shader program
 	BillboardingQuadsShader.CreateBillboardingQuadShaderProgram();
-
+	// Create light source shader program
+	LightSourceShader.CreateLightSourceShaderProgram();
 	/*---------- PRIMITIVE CREATION ----------*/
 	CreateDebugArrowPrimitive();
 	CreateDebugQuadPrimitive();
@@ -276,15 +284,31 @@ void Renderer::Render()
 
 	// Draw all debug objects
 	DebugRenderPass();
+
 }
 
 void Renderer::MainRenderPass()
 {
+	Light * pBaseLight = LightList[0];
+	glm::vec3 baseLightPosition = pBaseLight->GetOwner()->GetComponent<Transform>()->GetPosition();
+	glm::vec3 baseLightColor = pBaseLight->Color;
+	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
 	/*-------------------------------- REGULAR MESH RENDER-------------------------------*/
 	DefaultShader.Use();
 
-	// Get the MVP Matrix id
-	GLint glMVPAttributeIndex = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	// Get uniform locations
+	GLint glMVPAttributeIndex = DefaultShader.GetUniformLocation("ModelViewProjectionMatrix");
+	GLint glLightColorAttributeIndex = DefaultShader.GetUniformLocation("LightColor");
+	GLint glLightPositionAttributeIndex = DefaultShader.GetUniformLocation("LightPosition");
+	GLint glModelAttributeIndex = DefaultShader.GetUniformLocation("Model");
+	GLint glViewPositionAttributeIndex = DefaultShader.GetUniformLocation("ViewPosition");
+
+	// Set light color value
+	glUniform3f(glLightColorAttributeIndex, baseLightColor.x, baseLightColor.y, baseLightColor.z);
+	// Set light position value
+	glUniform3f(glLightPositionAttributeIndex, baseLightPosition.x, baseLightPosition.y, baseLightPosition.z);
+	// Set camera position value
+	glUniform3f(glViewPositionAttributeIndex, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 	// Wireframe draw check
 	if (EngineHandle.GetEngineStateManager().bRenderModeWireframe)
@@ -296,7 +320,6 @@ void Renderer::MainRenderPass()
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-
 
 	/*-------- STATIC MESH RENDER ----------*/
 	for (int i = 0; i < RenderList.size(); ++i)
@@ -322,13 +345,13 @@ void Renderer::MainRenderPass()
 		model = translate * rotate * scale;
 		mvp = Projection * View * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
-		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 		glUniformMatrix4fv(glMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(glModelAttributeIndex, 1, GL_FALSE, &model[0][0]);
 		check_gl_error_render();
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->TBO);
 		// Bind VAO
-		glBindVertexArray(*StaticVAOList[primitive->SlotID]);
+		glBindVertexArray(*StaticVAOList[primitive->PrimitiveSlot]);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, primitive->PrimitiveSize/sizeof(Vertex));
 		check_gl_error_render();
@@ -374,13 +397,12 @@ void Renderer::MainRenderPass()
 		model = translate * rotate * scale;
 		mvp = Projection * View * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
-		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 		glUniformMatrix4fv(glMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->TBO);
 		// Bind VAO
-		glBindVertexArray(*DynamicVAOList[primitive->SlotID]);
+		glBindVertexArray(*DynamicVAOList[primitive->PrimitiveSlot]);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, primitive->PrimitiveSize / sizeof(Vertex));
 		check_gl_error_render();
@@ -392,15 +414,59 @@ void Renderer::MainRenderPass()
 
 	DefaultShader.Unuse();
 
-	// Render billboarding quads
+	/*-------- BILLBOARDING QUADS RENDER ----------*/
 	BillboardingQuadsShader.Use();
+
 	GLint glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex;
-	glModelMatrixAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "ModelMatrix");
-	glViewMatrixAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "ViewMatrix");
-	glProjectionMatrixAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "ProjectionMatrix");
-	glBillboardModeAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "BillboardMode");
+	glModelMatrixAttributeIndex = BillboardingQuadsShader.GetUniformLocation("ModelMatrix");
+	glViewMatrixAttributeIndex = BillboardingQuadsShader.GetUniformLocation("ViewMatrix");
+	glProjectionMatrixAttributeIndex = BillboardingQuadsShader.GetUniformLocation("ProjectionMatrix");
+	glBillboardModeAttributeIndex = BillboardingQuadsShader.GetUniformLocation("BillboardMode");
 	RenderBillboardingQuads(glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex);
+	
 	BillboardingQuadsShader.Unuse();
+
+	/*-------- LIGHT SOURCES RENDER ----------*/
+	LightSourceShader.Use();
+
+	glMVPAttributeIndex = LightSourceShader.GetUniformLocation("ModelViewProjectionMatrix");
+	RenderLightSources(glMVPAttributeIndex);
+	
+	LightSourceShader.Unuse();
+}
+
+void Renderer::RenderLightSources(GLint aMVPAttributeIndex)
+{
+	for (int i = 0; i < LightList.size(); ++i)
+	{
+		Transform * transform = nullptr;
+		Light * light = LightList[i];
+		Primitive * lightMesh = light->GetOwner()->GetComponent<Primitive>();
+
+		GameObject * renderObject = light->GetOwner();
+		transform = renderObject->GetComponent<Transform>();
+
+		// Calculate the MVP matrix and set the matrix uniform
+		glm::mat4 mvp;
+		glm::mat4 model;
+		glm::mat4 translate = glm::translate(transform->GetPosition());
+		glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
+		glm::mat4 scale = glm::scale(transform->GetScale());
+		model = translate * rotate * scale;
+		mvp = Projection * View * model;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
+		check_gl_error_render();
+		// Bind VAO
+		glBindVertexArray(*StaticVAOList[lightMesh->PrimitiveSlot]);
+		check_gl_error_render();
+		glDrawArrays(GL_TRIANGLES, 0, lightMesh->PrimitiveSize / sizeof(Vertex));
+		check_gl_error_render();
+		assert(glGetError() == GL_NO_ERROR);
+		// Unbind VAO when done
+		glBindVertexArray(0);
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
 }
 
 void Renderer::DebugRenderPass()
@@ -411,20 +477,20 @@ void Renderer::DebugRenderPass()
 	{	
 		// Render wireframes
 		DefaultShader.Use();
-		glMVPAttributeIndex = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+		glMVPAttributeIndex = DefaultShader.GetUniformLocation("ModelViewProjectionMatrix");
 		RenderDebugWireframes(glMVPAttributeIndex);
 		DefaultShader.Unuse();
 
 		// Render normals
 		DebugNormalsShader.Use();
-		glMVPAttributeIndex = glGetUniformLocation(DebugNormalsShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+		glMVPAttributeIndex = DebugNormalsShader.GetUniformLocation("ModelViewProjectionMatrix");
 		RenderDebugNormals(glMVPAttributeIndex);
 		DebugNormalsShader.Unuse();
 	}
 
 	// Render debug arrows
 	DebugMeshShader.Use();
-	glMVPAttributeIndex = glGetUniformLocation(DebugMeshShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	glMVPAttributeIndex = DebugMeshShader.GetUniformLocation("ModelViewProjectionMatrix");
 	RenderDebugArrows(glMVPAttributeIndex);
 
 	// Render debug line loops
@@ -444,7 +510,7 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 
 		if (!primitive->bIsBound)
 			continue;
-		if (primitive->RenderDebug)
+		if (primitive->bShouldRenderDebug)
 		{
 			GameObject * renderObject = primitive->GetOwner();
 			transform = renderObject->GetComponent<Transform>();
@@ -457,7 +523,6 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 			model = translate * rotate * scale;
 			mvp = Projection * View * model;
 			glEnableClientState(GL_VERTEX_ARRAY);
-			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
 			glLineWidth((GLfloat)WireframeThickness);
@@ -485,7 +550,7 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 
 		if (!primitive->bIsBound)
 			continue;
-		if (primitive->RenderDebug)
+		if (primitive->bShouldRenderDebug)
 		{
 			GameObject * renderObject = primitive->GetOwner();
 			transform = renderObject->GetComponent<Transform>();
@@ -498,7 +563,6 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 			model = translate * rotate * scale;
 			mvp = Projection * View * model;
 			glEnableClientState(GL_VERTEX_ARRAY);
-			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
 			glLineWidth(1);
@@ -606,6 +670,8 @@ void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAt
 	}
 	debugFactory.DebugQuadsStack.clear();
 }
+
+
 
 // aPrimitive : Primitive the texture is being assigned to
 // aTextureID : ID of the texture in the resource manager

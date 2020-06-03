@@ -20,6 +20,7 @@
 #include "ShaderProgram.h"
 
 class Primitive;
+class Light;
 
 class Renderer : public Observer
 {
@@ -41,6 +42,7 @@ public:
 	ShaderProgram DebugNormalsShader;
 	ShaderProgram DebugMeshShader;
 	ShaderProgram BillboardingQuadsShader;
+	ShaderProgram LightSourceShader;
 	/*--------------------------- VERTEX ARRAY OBJECTS --------------------------------*/
 	GLuint * StaticVAOList[MAXIMUM_STATIC_RENDER_OBJECTS];
 	GLuint * DynamicVAOList[MAXIMUM_DYNAMIC_RENDER_OBJECTS];
@@ -71,6 +73,8 @@ public:
 
 	// List of render components
 	std::vector<Primitive *> RenderList;
+	// List of light components
+	std::vector<Light *> LightList;
 	// Holds the number of currently active/bound textures
 	GLuint TextureCount;
 	// The thickness of debug wireframe lines
@@ -88,6 +92,7 @@ public:
 		DebugNormalsShader(*this),
 		DebugMeshShader(*this),
 		BillboardingQuadsShader(*this),
+		LightSourceShader(*this),
 		TextureCount(0)
 	{}
 
@@ -125,6 +130,7 @@ public:
 
 	void InititalizeRenderer();
 	
+	/* --- Primitive handling functions --- */
 	// Converts static primitive to dynamic primitive
 	void ConvertStaticToDynamic(Primitive * aPrimitive);
 	// Gives a primitive a VAO & VBO to use, adds to list of render objects
@@ -144,6 +150,9 @@ public:
 	// Create the debug quad primitive and save it for later
 	void CreateDebugQuadPrimitive();
 	
+	/* --- Light handling functions --- */
+	void RegisterLight(Light * aNewLight);
+
 	// Binds texture at requested ID to primitive
 	bool BindTexture(Primitive * aPrimitive, int aTextureID);
 	
@@ -159,6 +168,8 @@ public:
 	void RenderDebugLineLoops(GLint aMVPAttributeIndex);
 	void RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex);
 	
+	void RenderLightSources(GLint aMVPAttributeIndex);
+
 	static void check_gl_error_render()
 	{
 		GLenum err(glGetError());

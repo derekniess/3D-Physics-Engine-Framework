@@ -38,6 +38,8 @@ public:
 	// Creates, links and validates the Billboarding Quads  Shader Program 
 	bool CreateBillboardingQuadShaderProgram();
 
+	bool CreateLightSourceShaderProgram();
+
 	// Returns status of vertex shader compilation
 	bool CheckVertexShaderCompilationStatus(GLuint aShaderID);
 
@@ -60,23 +62,13 @@ public:
 	void Use();
 	void Unuse();
 
+	inline GLint GetUniformLocation(char * aUniformName) 
+	{
+		return glGetUniformLocation(ShaderProgramID, aUniformName);
+	}
 private:
-	// Default shader programs
-	bool CreateDefaultVertexShader();
-	bool CreateDefaultFragmentShader();
-	bool CreateDefaultGeometryShader();
-	
-	// Debug wireframe, face and vertex normal rendering shader programs
-	bool CreateDebugNormalsVertexShader();
-	bool CreateDebugNormalsFragmentShader();
-	bool CreateDebugNormalsGeometryShader();
 
-	// Debug mesh shader program
-	bool CreateDebugMeshVertexShader();
-	bool CreateDebugMeshFragmentShader();
-
-	// Billboarding quads shader program
-	bool CreateBillboardingQuadVertexShader();
-	bool CreateBillboardingQuadFragmentShader();
-
+	bool CreateVertexShader(char * aShaderName);
+	bool CreateGeometryShader(char * aShaderName);
+	bool CreateFragmentShader(char * aShaderName);
 };

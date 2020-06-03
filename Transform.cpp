@@ -111,6 +111,6 @@ void Transform::Deserialize(TextFileData aTextData)
 
 void Transform::Update()
 {
-	
+	Rotation = glm::normalize(Rotation);
 }
 

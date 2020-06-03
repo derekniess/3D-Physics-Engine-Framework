@@ -29,6 +29,9 @@ public:
 	glm::mat3 InertiaTensor = glm::mat3(1);
 	// Contains inverted mass and inertia tensors
 	Eigen::Matrix<float, 6, 6> InverseMassMatrix;
+	// Coefficient of restitution, a value between 0 and 1
+	float Restitution = 1.0f;
+	glm::mat4 LocalToWorldMatrix;
 	/*-----------MEMBER FUNCTIONS-----------*/
 public:
 	Collider() : 

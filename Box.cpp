@@ -36,19 +36,18 @@ void Box::Initialize()
 glm::vec3 Box::FindFarthestPointInDirection(glm::vec3 aDirection)
 {
 	Transform * transform = pOwner->GetComponent<Transform>();
-	// If the body is rotated at all, convert the direction to local space before performing search
-	if (transform->Rotation != glm::quat())
-	{
-		aDirection = glm::normalize(Utility::RotateVectorByQuaternion(aDirection, transform->Rotation));
-	}
-	int index = 0, maxiumum = 0;
-	maxiumum = glm::dot(aDirection, Vertices[0].Position);
+
+	// To deal with rotations, convert the direction to local space before performing search
+	aDirection = glm::normalize(Utility::RotateVectorByQuaternion(aDirection, transform->Rotation));
+
+	int index = 0;
+	float maxiumum = glm::dot(aDirection, Vertices[0].Position);
 	for (int i = 1; i < Vertices.size(); ++i)
 	{
 		float PositionProjectedAlongDirection = glm::dot(aDirection, Vertices[i].Position);
 		if (PositionProjectedAlongDirection > maxiumum)
 		{
-			maxiumum = (int)PositionProjectedAlongDirection;
+			maxiumum = PositionProjectedAlongDirection;
 			index = i;
 		}
 	}

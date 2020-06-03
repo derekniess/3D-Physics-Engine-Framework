@@ -42,11 +42,11 @@ public:
 	/*----------MEMBER VARIABLES----------*/
 public:
 	int PrimitiveSize;
-	int SlotID;
+	int PrimitiveSlot;
 	GLuint TBO;
 	GLuint VAO;
 	GLuint VBO;
-	bool RenderDebug = true;
+	bool bShouldRenderDebug = true;
 	std::vector<Vertex> Vertices;
 
 	bool bIsBound;

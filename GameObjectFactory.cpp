@@ -120,7 +120,6 @@ GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 	// Add game object to observer list of engine exit event
 	EngineHandle.GetMainEventList()[EngineEvent::ENGINE_EXIT].AddObserver(newGameObject);
 
-	
 	return newGameObject;
 }
 

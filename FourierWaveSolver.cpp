@@ -1,4 +1,4 @@
-#include "WaveSolver.h"
+#include "FourierWaveSolver.h"
 #include "Script.h"
 #include "Primitive.h"
 #include "GameObject.h"
@@ -6,7 +6,7 @@
 
 #define INDEX(x, y, width) (x * width) + y
 
-void WaveSolver::Initialize()
+void FourierWaveSolver::Initialize()
 {
 	CreateGrid();
 
@@ -22,19 +22,19 @@ void WaveSolver::Initialize()
 	CalculateFourierCoefficients();
 }
 
-void WaveSolver::Behavior()
+void FourierWaveSolver::Behavior()
 {
 	DrawWaveSolverSettingsWidget();
 	CalculateHeightValues();
 	UpdateGrid();
 }
 
-float WaveSolver::WaveControlFunction(float x, float y)
+float FourierWaveSolver::WaveControlFunction(float x, float y)
 {
 	return (sin(sqrt(156 * y)) + cos(sqrt(21 * x)) + cos(sqrt(40 * x))) ;
 }
 
-void WaveSolver::CalculateFourierCoefficients()
+void FourierWaveSolver::CalculateFourierCoefficients()
 {
 	// Default initialization 
 	for (int m = 0; m < SectionsX; ++m)
@@ -69,7 +69,7 @@ void WaveSolver::CalculateFourierCoefficients()
 	}
 }
 
-void WaveSolver::CalculateHeightValues()
+void FourierWaveSolver::CalculateHeightValues()
 {
 	TotalTime += TimeStep;
 	for (int m = 0; m < SectionsX; ++m)
@@ -106,7 +106,7 @@ void WaveSolver::CalculateHeightValues()
 	}
 }
 
-void WaveSolver::CreateGrid()
+void FourierWaveSolver::CreateGrid()
 {
 	// Create grid for owner 
 	WaveGrid = Grid(SectionsX, SectionsY, SizeX, SizeY);
@@ -121,7 +121,7 @@ void WaveSolver::CreateGrid()
 	}
 }
 
-void WaveSolver::UpdateGrid()
+void FourierWaveSolver::UpdateGrid()
 {
 	WaveGrid = Grid(SectionsX, SectionsY, SizeX, SizeY);
 	WaveGrid.Color = glm::vec3(0, 0, 1);
@@ -145,7 +145,7 @@ void WaveSolver::UpdateGrid()
 	}
 }
 
-void WaveSolver::DrawWaveSolverSettingsWidget()
+void FourierWaveSolver::DrawWaveSolverSettingsWidget()
 {
 	ImGui::Begin("Wave Solver Settings:");
 
@@ -212,12 +212,12 @@ void WaveSolver::DrawWaveSolverSettingsWidget()
 		}
 	}
 
-	DeltaX = 1 / SectionsX;
-	DeltaY = 1 / SectionsY;
+	DeltaX = 1.0f / SectionsX;
+	DeltaY = 1.0f / SectionsY;
 	ImGui::End();
 }
 
-void WaveSolver::Destroy()
+void FourierWaveSolver::Destroy()
 {
 	for (int i = 0; i < SectionsY; ++i)
 	{

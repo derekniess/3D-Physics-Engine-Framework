@@ -21,8 +21,11 @@ public:
 	glm::vec3 CurrentPosition = glm::vec3();
 	glm::vec3 PreviousPosition = glm::vec3();
 
-	glm::vec3 LinearVelocity = glm::vec3();
-	glm::vec3 AngularVelocity = glm::vec3();
+	glm::vec3 CurrentLinearVelocity = glm::vec3();
+	glm::vec3 PreviousLinearVelocity = glm::vec3();
+
+	glm::vec3 CurrentAngularVelocity = glm::vec3();
+	glm::vec3 PreviousAngularVelocity = glm::vec3();
 
 	glm::vec3 Force = glm::vec3();
 	glm::vec3 Torque = glm::vec3();
@@ -44,7 +47,7 @@ public:
 	// GETTERS
 	inline float GetMass() { return Mass; }
 	inline glm::vec3 GetCurrentPosition() { return CurrentPosition; }
-	inline glm::vec3 GetVelocity() { return LinearVelocity; }
+	inline glm::vec3 GetVelocity() { return CurrentLinearVelocity; }
 	// SETTERS
 	inline void SetMass(float mass) { Mass = mass; InverseMass = 1 / Mass; }
 	inline void SetCurrentPosition(glm::vec3 position) { CurrentPosition = position; }

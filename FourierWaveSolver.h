@@ -4,7 +4,7 @@
 
 #define E_PI 3.141592f
 
-struct WaveSolver : public ScriptBehavior
+struct FourierWaveSolver : public ScriptBehavior
 {
 	/*-----------MEMBER VARIABLES-----------*/
 public:
@@ -16,8 +16,8 @@ public:
 	float SpacingY = 1.0f;
 	float WaveScaleX = 0.0005f;
 	float WaveScaleY = 0.001f;
-	float DeltaX = 1/SectionsX;
-	float DeltaY = 1/SectionsY;
+	float DeltaX = 1.0f/SectionsX;
+	float DeltaY = 1.0f/SectionsY;
 	float ** FourierCoefficientAmn = nullptr;
 	float ConstantA = 1.0f;
 	float ConstantB = 1.0f;

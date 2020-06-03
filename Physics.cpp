@@ -24,6 +24,8 @@ void Physics::UpdateTransform()
 
 	Transform * transform = this->GetOwner()->GetComponent<Transform>();
 	transform->Position = CurrentPosition;
+
+	// Rotation is updated directly in the integration step
 }
 
 Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
@@ -35,7 +37,7 @@ Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 	positionTemp.y += d.mDerivedVelocity.y * dt;
 	positionTemp.z += d.mDerivedVelocity.z * dt;
 
-	velocityTemp = LinearVelocity;
+	velocityTemp = CurrentLinearVelocity;
 	velocityTemp.x += d.mDerivedAcceleration.x * dt;
 	velocityTemp.y += d.mDerivedAcceleration.y * dt;
 	velocityTemp.z += d.mDerivedAcceleration.z * dt;
@@ -58,16 +60,18 @@ void Physics::IntegrateEuler(float dt)
 	}
 	// Apply gravity
 	if (bShouldGravityAffect)
-		LinearVelocity += glm::vec3(0, GravityMagnitude, 0) * dt;
+		CurrentLinearVelocity += glm::vec3(0, GravityMagnitude, 0) * dt;
 
+	PreviousLinearVelocity = CurrentLinearVelocity;
 	// Integrate force and linear velocity
-	LinearVelocity = LinearVelocity + ((Force * InverseMass) * dt);
+	CurrentLinearVelocity = CurrentLinearVelocity + ((Force * InverseMass) * dt);
 	PreviousPosition = CurrentPosition;
-	CurrentPosition = PreviousPosition + LinearVelocity * dt;
+	CurrentPosition = PreviousPosition + CurrentLinearVelocity * dt;
 
+	PreviousAngularVelocity = CurrentAngularVelocity;
 	// Integrate torque and angular velocity
-	glm::vec3 axis = AngularVelocity;
-	float length = glm::length(AngularVelocity);
+	glm::vec3 axis = CurrentAngularVelocity;
+	float length = glm::length(CurrentAngularVelocity);
 	float angle = length * dt;
 	// Prevents degenerate quaternions
 	if (angle != 0.0f)
@@ -76,6 +80,7 @@ void Physics::IntegrateEuler(float dt)
 		axis = axis / length;
 		glm::quat rotationDelta(std::cos(angle / 2.0f), axis * std::sin(angle / 2.0f));
 
+		// Update rotation directly
 		Transform & transform = *(pOwner->GetComponent<Transform>());
 		transform.Rotation = rotationDelta * transform.Rotation;
 	}
@@ -117,9 +122,9 @@ void Physics::IntegrateRK4(float totalTime, float dt)
 	CurrentPosition.y += dydt * dt;
 	CurrentPosition.z += dzdt * dt;
 
-	LinearVelocity.x += dvxdt * dt;
-	LinearVelocity.y += dvydt * dt;
-	LinearVelocity.z += dvzdt * dt;
+	CurrentLinearVelocity.x += dvxdt * dt;
+	CurrentLinearVelocity.y += dvydt * dt;
+	CurrentLinearVelocity.z += dvzdt * dt;
 
 	UpdateTransform();
 }

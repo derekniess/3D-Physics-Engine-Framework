@@ -4,6 +4,8 @@
 #include "Collider.h"
 #include "Constraint.h"
 
+float Constraint::InitialLambda = 0.0f;
+
 void Constraint::CalculateInverseMassMatrices()
 {
 	// Calculate inverse mass matrices for entire constraint system
@@ -45,8 +47,11 @@ void Constraint::CalculateInverseMassMatrices()
 	Eigen::Matrix3f inverseMassMatrixB = massMatrixB.inverse();
 
 	// Convert from local space to world space using the 3x3 submatrix of the Rotation transform
-	inverseInertiaTensorA = rotationMatrixA_Eigen * inverseInertiaTensorA * rotationMatrixA_Eigen.transpose();
-	inverseInertiaTensorB = rotationMatrixB_Eigen * inverseInertiaTensorB * rotationMatrixB_Eigen.transpose();
+	inverseInertiaTensorA = rotationMatrixA_Eigen * inverseInertiaTensorA;
+	inverseInertiaTensorB = rotationMatrixB_Eigen * inverseInertiaTensorB;
+
+	inverseInertiaTensorA = inverseInertiaTensorA * rotationMatrixA_Eigen.transpose();
+	inverseInertiaTensorB = inverseInertiaTensorB * rotationMatrixB_Eigen.transpose();
 
 	// Create inverse mass matrix for constraint
 	InverseMassMatrix << inverseMassMatrixA, Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(),

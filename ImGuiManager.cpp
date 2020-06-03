@@ -53,7 +53,7 @@ void ImGuiManager::OnNotify(Event * aEvent)
 
 			// Add widgets
 			WidgetList.push_back(new WindowMenuBarWidget(*this));
-			WidgetList.push_back(new WorldOutlinerWidget(*this));
+			//WidgetList.push_back(new WorldOutlinerWidget(*this));
 			WidgetList.push_back(new DebugSettingsWidget(*this));
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)

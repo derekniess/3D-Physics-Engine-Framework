@@ -21,6 +21,7 @@
 #include "Controller.h"
 #include "Script.h"
 #include "Box.h"
+#include "Light.h"
 
 class GameObjectFactory : public Observer
 {
@@ -36,6 +37,7 @@ public:
 
 	GameObject * SpawnGameObjectFromArchetype(const char * aFileName);
 	GameObject * SpawnGameObject(Transform & aTransform = Transform());
+	// TODO [@Derek]:  figure out a way to not to do this - Reflection?
 	template <typename T> T * SpawnComponent()
 	{
 		Component * mComponent = nullptr;
@@ -76,6 +78,11 @@ public:
 		{
 			mComponent = new Box();
 			EngineHandle.GetPhysicsManager().RegisterColliderObject(static_cast<Collider *>(mComponent));
+		}
+		else if (typeid(T) == typeid(Light))
+		{
+			mComponent = new Light();
+			EngineHandle.GetRenderer().RegisterLight(static_cast<Light *>(mComponent));
 		}
 		return static_cast<T *>(mComponent);
 	}

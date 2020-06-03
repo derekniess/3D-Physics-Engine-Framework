@@ -11,7 +11,8 @@ class ContactConstraint : public Constraint
 	/*-----------MEMBER VARIABLES-----------*/
 public:
 	ContactData ConstraintData;
-
+	// Slot of the manifold used to contain all contacts related to this constraint
+	int ManifoldID = 0;
 	// Used for clamping
 	float NormalImpulseSum = 0.0f;
 	float TangentImpulseSum1 = 0.0f;
@@ -21,6 +22,6 @@ public:
 	ContactConstraint(Collider & aColliderA, Collider & aColliderB) : Constraint(aColliderA, aColliderB)
 	{}
 	virtual void CalculateJacobian() override;
-	virtual float Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector) override; 
+	virtual float Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aCurrentVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector) override; 
 
 };

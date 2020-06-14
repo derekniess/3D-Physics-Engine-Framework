@@ -1,10 +1,9 @@
 #pragma once
-#include <iostream>
 
-#include "Engine.h"
 #include "Observer.h"
 #include "Subject.h"
 #include "Event.h"
+struct GLFWwindow;
 
 class WindowEvent : public Event
 {
@@ -20,6 +19,8 @@ public:
 	~WindowEvent() {};
 };
 
+class Engine;
+
 class WindowManager : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
@@ -33,8 +34,8 @@ public:
 	static int Height;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	WindowManager(Engine & aEngine) : EngineHandle(aEngine) {}
-	~WindowManager();
+	WindowManager(Engine & aEngine);
+	virtual ~WindowManager();
 
 	inline GLFWwindow * GetWindow() const { return pWindow; }
 	Engine const & GetEngine() { return EngineHandle; }

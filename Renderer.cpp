@@ -1,14 +1,23 @@
+// C++ header files
+#include <iostream>
+#include <fstream>
+#include <list>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "Renderer.h"
+#include "Engine.h"
 #include "EngineStateManager.h"
 #include "GameObjectFactory.h"
 #include "DebugFactory.h"
+#include "WindowManager.h"
+
 #include "GameObject.h"
 #include "Primitive.h"
 #include "Light.h"
+#include "Texture.h"
+#include "Camera.h"
 
 #include "UtilityFunctions.h"
 // Render Utilities
@@ -253,9 +262,9 @@ void Renderer::OnNotify(Event * aEvent)
 void Renderer::Render()
 {
 	// Update camera values before constructing view matrix
-	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
-	glm::vec3 cameraTarget = pActiveCamera->GetCameraLookDirection();
-	glm::vec3 upVector = pActiveCamera->GetCameraUpDirection();
+	vector3 cameraPosition = pActiveCamera->GetCameraPosition();
+	vector3 cameraTarget = pActiveCamera->GetCameraLookDirection();
+	vector3 upVector = pActiveCamera->GetCameraUpDirection();
 
 	/*-------------------------------- VIEW MATRIX -------------------------------*/
 	View = glm::lookAt(
@@ -290,9 +299,9 @@ void Renderer::Render()
 void Renderer::MainRenderPass()
 {
 	Light * pBaseLight = LightList[0];
-	glm::vec3 baseLightPosition = pBaseLight->GetOwner()->GetComponent<Transform>()->GetPosition();
-	glm::vec3 baseLightColor = pBaseLight->Color;
-	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
+	vector3 baseLightPosition = pBaseLight->GetOwner()->GetComponent<Transform>()->GetPosition();
+	vector3 baseLightColor = pBaseLight->Color;
+	vector3 cameraPosition = pActiveCamera->GetCameraPosition();
 	/*-------------------------------- REGULAR MESH RENDER-------------------------------*/
 	DefaultShader.Use();
 
@@ -312,14 +321,9 @@ void Renderer::MainRenderPass()
 
 	// Wireframe draw check
 	if (EngineHandle.GetEngineStateManager().bRenderModeWireframe)
-	{
-		glLineWidth((GLfloat)WireframeThickness);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
+		SetRenderModeWireframe();
 	else
-	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
+		SetRenderModeFill();
 
 	/*-------- STATIC MESH RENDER ----------*/
 	for (int i = 0; i < RenderList.size(); ++i)
@@ -333,15 +337,20 @@ void Renderer::MainRenderPass()
 		// Skip any non-static meshes
 		if(primitive->ePrimitiveDataType != STATIC)
 			continue;
+		// Use wireframe mode for wireframe primitives
+		if (primitive->bIsWireframePrimitive)
+			SetRenderModeWireframe();
+		else if (!EngineHandle.GetEngineStateManager().bRenderModeWireframe)
+			SetRenderModeFill();
 
 		GameObject * renderObject = primitive->GetOwner(); 
 		transform = renderObject->GetComponent<Transform>();
 		// Calculate the MVP matrix and set the matrix uniform
-		glm::mat4 mvp;
-		glm::mat4 model;
-		glm::mat4 translate = glm::translate(transform->GetPosition());
-		glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
-		glm::mat4 scale = glm::scale(transform->GetScale());
+		matrix4 mvp;
+		matrix4 model;
+		matrix4 translate = glm::translate(transform->GetPosition());
+		matrix4 rotate = glm::mat4_cast(transform->GetRotation());
+		matrix4 scale = glm::scale(transform->GetScale());
 		model = translate * rotate * scale;
 		mvp = Projection * View * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -364,8 +373,8 @@ void Renderer::MainRenderPass()
 	// Render Minkowski Difference
 	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
 	{
-		Mesh * shape1 = static_cast<Mesh *>(RenderList[5]);
-		Mesh * shape2 = static_cast<Mesh *>(RenderList[6]);
+		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
+		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
 		std::vector<Vertex> MinkowskiDifferenceVertices;
 		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
 		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);
@@ -389,11 +398,11 @@ void Renderer::MainRenderPass()
 		GameObject * renderObject = primitive->GetOwner();
 		transform = renderObject->GetComponent<Transform>();
 		// Calculate the MVP matrix and set the matrix uniform
-		glm::mat4 mvp;
-		glm::mat4 model;
-		glm::mat4 translate = glm::translate(transform->GetPosition());
-		glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
-		glm::mat4 scale = glm::scale(transform->GetScale());
+		matrix4 mvp;
+		matrix4 model;
+		matrix4 translate = glm::translate(transform->GetPosition());
+		matrix4 rotate = glm::mat4_cast(transform->GetRotation());
+		matrix4 scale = glm::scale(transform->GetScale());
 		model = translate * rotate * scale;
 		mvp = Projection * View * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -433,6 +442,7 @@ void Renderer::MainRenderPass()
 	RenderLightSources(glMVPAttributeIndex);
 	
 	LightSourceShader.Unuse();
+
 }
 
 void Renderer::RenderLightSources(GLint aMVPAttributeIndex)
@@ -447,11 +457,11 @@ void Renderer::RenderLightSources(GLint aMVPAttributeIndex)
 		transform = renderObject->GetComponent<Transform>();
 
 		// Calculate the MVP matrix and set the matrix uniform
-		glm::mat4 mvp;
-		glm::mat4 model;
-		glm::mat4 translate = glm::translate(transform->GetPosition());
-		glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
-		glm::mat4 scale = glm::scale(transform->GetScale());
+		matrix4 mvp;
+		matrix4 model;
+		matrix4 translate = glm::translate(transform->GetPosition());
+		matrix4 rotate = glm::mat4_cast(transform->GetRotation());
+		matrix4 scale = glm::scale(transform->GetScale());
 		model = translate * rotate * scale;
 		mvp = Projection * View * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -502,24 +512,25 @@ void Renderer::DebugRenderPass()
 void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 {
 	// Render all objects, scaled up and in wireframe mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	SetRenderModeWireframe();
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
 
-		if (!primitive->bIsBound)
+		// If unbound or a debug object (don't render debug for debug, that would just be silly)
+		if (!primitive->bIsBound || primitive->bIsDebug)
 			continue;
-		if (primitive->bShouldRenderDebug)
+		if (primitive->bShouldRenderWireframe)
 		{
 			GameObject * renderObject = primitive->GetOwner();
 			transform = renderObject->GetComponent<Transform>();
 			// Calculate the MVP matrix and set the matrix uniform
-			glm::mat4 mvp;
-			glm::mat4 model;
-			glm::mat4 translate = glm::translate(transform->GetPosition());
-			glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
-			glm::mat4 scale = glm::scale(transform->GetScale() * 1.25f);
+			matrix4 mvp;
+			matrix4 model;
+			matrix4 translate = glm::translate(transform->GetPosition());
+			matrix4 rotate = glm::mat4_cast(transform->GetRotation());
+			matrix4 scale = glm::scale(transform->GetScale() * 1.25f);
 			model = translate * rotate * scale;
 			mvp = Projection * View * model;
 			glEnableClientState(GL_VERTEX_ARRAY);
@@ -548,18 +559,19 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
 
-		if (!primitive->bIsBound)
+		// If unbound or a debug object (don't render debug for debug, that would just be silly)
+		if (!primitive->bIsBound || primitive->bIsDebug)
 			continue;
-		if (primitive->bShouldRenderDebug)
+		if (primitive->bShouldRenderWireframe)
 		{
 			GameObject * renderObject = primitive->GetOwner();
 			transform = renderObject->GetComponent<Transform>();
 			// Calculate the MVP matrix and set the matrix uniform
-			glm::mat4 mvp;
-			glm::mat4 model;
-			glm::mat4 translate = glm::translate(transform->GetPosition());
-			glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
-			glm::mat4 scale = glm::scale(transform->GetScale() * 1.25f);
+			matrix4 mvp;
+			matrix4 model;
+			matrix4 translate = glm::translate(transform->GetPosition());
+			matrix4 rotate = glm::mat4_cast(transform->GetRotation());
+			matrix4 scale = glm::scale(transform->GetScale() * 1.25f);
 			model = translate * rotate * scale;
 			mvp = Projection * View * model;
 			glEnableClientState(GL_VERTEX_ARRAY);
@@ -582,20 +594,20 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 {
 	glm::mat4 projectionView = Projection * View;
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	SetRenderModeFill();
 
 	DebugFactory & debugFactory = EngineHandle.GetDebugFactory();
 	// Draw all arrows that have been registered 
 	for (int i = 0; i < debugFactory.DebugArrowsStack.size(); ++i)
 	{
 		Arrow & debugArrow = debugFactory.DebugArrowsStack[i];
-		glm::mat4 model;
-		glm::mat4 translate = glm::translate(debugArrow.PointA);
+		matrix4 model;
+		matrix4 translate = glm::translate(debugArrow.PointA);
 		// Create rotation matrix using the direction the arrow points in
-		glm::vec3 normal = debugArrow.PointA - debugArrow.PointB;
+		vector3 normal = debugArrow.PointA - debugArrow.PointB;
 		normal = glm::normalize(normal);
-		glm::mat4 rotate = glm::orientation(normal, glm::vec3(1, 0, 0));
-		glm::mat4 scale = glm::scale(glm::vec3(debugArrow.Scale));
+		matrix4 rotate = glm::orientation(normal, glm::vec3(1, 0, 0));
+		matrix4 scale = glm::scale(glm::vec3(debugArrow.Scale));
 		model = translate * rotate * scale;
 		projectionView = projectionView * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -615,7 +627,7 @@ void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 void Renderer::RenderDebugLineLoops(GLint aMVPAttributeIndex)
 {
 	// Don't need model matrix as all points are in world space already
-	glm::mat4 projectionView = Projection * View;
+	matrix4 projectionView = Projection * View;
 
 	DebugFactory & debugFactory = EngineHandle.GetDebugFactory();
 	// Draw all Line Loops that have been registered 
@@ -643,7 +655,7 @@ void Renderer::RenderDebugLineLoops(GLint aMVPAttributeIndex)
 
 void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex)
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	SetRenderModeFill();
 	// Set projection and view matrices
 	glUniformMatrix4fv(aProjectionAttributeIndex, 1, GL_FALSE, &Projection[0][0]);
 	glUniformMatrix4fv(aViewAttributeIndex, 1, GL_FALSE, &View[0][0]);
@@ -654,9 +666,9 @@ void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAt
 	// Draw all Quads that have been registered 
 	for (int i = 0; i < debugFactory.DebugQuadsStack.size(); ++i)
 	{
-		glm::mat4 model;
-		glm::mat4 translate = glm::translate(debugFactory.DebugQuadsStack[i].WorldPosition);
-		glm::mat4 scale = glm::scale(glm::vec3(debugFactory.DebugQuadsStack[i].Scale));
+		matrix4 model;
+		matrix4 translate = glm::translate(debugFactory.DebugQuadsStack[i].WorldPosition);
+		matrix4 scale = glm::scale(vector3(debugFactory.DebugQuadsStack[i].Scale));
 		model = translate * scale;
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glUniformMatrix4fv(aModelAttributeIndex, 1, GL_FALSE, &model[0][0]);

@@ -2,6 +2,7 @@
 #include "EngineStateManager.h"
 #include "PhysicsManager.h"
 #include "Renderer.h"
+#include "Engine.h"
 
 bool DebugSettingsWidget::DrawWidget()
 {
@@ -33,6 +34,10 @@ bool DebugSettingsWidget::DrawWidget()
 
 		ImGui::Checkbox("Render Minkowski Difference ", &engineStateManager.bShouldRenderMinkowskiDifference);
 	
+		ImGui::Checkbox("Simulation Enabled ", &engineStateManager.bShouldSimulationRun);
+
+		ImGui::Checkbox("Contact Debug Mode Enabled ", &engineStateManager.bContactDebugModeEnabled);
+
 		ImGui::PushItemWidth(150);
 		ImGui::SliderInt("Integrator Iterations: ", &PhysicsManager::IntegratorIterations, 1, 100);
 		ImGui::PopItemWidth();

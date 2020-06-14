@@ -23,6 +23,8 @@
 #include "Box.h"
 #include "Light.h"
 
+class Engine;
+
 class GameObjectFactory : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/

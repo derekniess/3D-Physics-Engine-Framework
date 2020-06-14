@@ -36,7 +36,7 @@ float FiniteDifferenceWaveSolver::WaveControlFunctionF(float x, float y)
 
 float FiniteDifferenceWaveSolver::WaveControlFunctionG(float x, float y)
 {
-	return (0.5 * (1 - abs(sin(x))) * (1 - abs(sin(2 * y))) + 2 * (1 - abs(sin(5 * x))) * (1 - abs(sin(7 * y))));
+	return (0.5f * (1.0f - abs(sin(x))) * (1.0f - abs(sin(2.0f * y))) + 2.0f * (1.0f - abs(sin(5.0f * x))) * (1.0f - abs(sin(7.0f * y))));
 }
 
 float FiniteDifferenceWaveSolver::WaveControlFunctionS(float x, float y, float t)
@@ -124,7 +124,7 @@ void FiniteDifferenceWaveSolver::CreateGrid()
 void FiniteDifferenceWaveSolver::UpdateGrid()
 {
 	WaveGrid = Grid(SectionsX, SectionsY, SizeX, SizeY);
-	WaveGrid.Color = glm::vec3(0, 0, 1);
+	WaveGrid.Color = vector3(0, 0, 1);
 	WaveGrid.SpacingX = SpacingX;
 	WaveGrid.SpacingY = SpacingY;
 	for (int i = 0; i < SectionsX; ++i)
@@ -132,7 +132,7 @@ void FiniteDifferenceWaveSolver::UpdateGrid()
 		for (int j = 0; j < SectionsY; ++j)
 		{
 			WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Position.y = WaveHeightCurrent[i][j] * Displacement;
-			WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Color = glm::vec4(0.1f, 0.1f, WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Position.y, 1);
+			WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Color = vector4(0.1f, 0.1f, WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Position.y, 1);
 		}
 	}
 	WaveGrid.CalculateGrid();

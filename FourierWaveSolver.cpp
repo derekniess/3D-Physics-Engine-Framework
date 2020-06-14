@@ -97,7 +97,7 @@ void FourierWaveSolver::CalculateHeightValues()
 			float yj = n * DeltaY * WaveScaleX;
 			float gridX = WaveGrid.GridPoints[INDEX(m, n, SectionsY)].Position.x * WaveScaleX;
 			float gridY = WaveGrid.GridPoints[INDEX(m, n, SectionsY)].Position.z * WaveScaleY;
-			float Kmn = PI * sqrt((powf(m, 2) / powf(ConstantA, 2)) + (powf(n, 2) / powf(ConstantB, 2)));
+			float Kmn = PI * sqrt((powf((float)m, 2) / powf(ConstantA, 2)) + (powf((float)n, 2) / powf(ConstantB, 2)));
 			float firstCosine = cos(Kmn * ConstantC * TotalTime);
 			float firstSine = sin((m * PI * gridX) / ConstantA);
 			float secondSine = sin((n * PI * gridY) / ConstantB);

@@ -7,6 +7,7 @@
 
 namespace Utility
 {
+	
 	// Sorts the input vector using the values provided by a reference vector of pairs, 
 	// where the first element of the pair contains the order of rearrangement
 	template <typename T>

@@ -1,17 +1,16 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <glm/vec3.hpp>
 #include <algorithm>
+#include "Typedefs.h"
 
 struct SupportPoint
 {
-	glm::vec3 MinkowskiHullVertex;
+	vector3 MinkowskiHullVertex;
 	// World space support points
-	glm::vec3 World_SupportPointA;
-	glm::vec3 World_SupportPointB;
+	vector3 World_SupportPointA;
+	vector3 World_SupportPointB;
 	// Object space support points
-	glm::vec3 Local_SupportPointA;
-	glm::vec3 Local_SupportPointB;
+	vector3 Local_SupportPointA;
+	vector3 Local_SupportPointB;
 
 	bool operator == (const SupportPoint & ref) { return MinkowskiHullVertex == ref.MinkowskiHullVertex; }
 };
@@ -63,8 +62,8 @@ struct PolytopeFace
 		Points[0] = supportA;
 		Points[1] = supportB;
 		Points[2] = supportC;
-		glm::vec3 edge1 = supportB.MinkowskiHullVertex - supportA.MinkowskiHullVertex;
-		glm::vec3 edge2 = supportC.MinkowskiHullVertex - supportA.MinkowskiHullVertex;
+		vector3 edge1 = supportB.MinkowskiHullVertex - supportA.MinkowskiHullVertex;
+		vector3 edge2 = supportC.MinkowskiHullVertex - supportA.MinkowskiHullVertex;
 		FaceNormal = glm::cross(edge1, edge2);
 	}
 };
@@ -83,15 +82,15 @@ struct PolytopeEdge
 struct ContactData
 {
 	// Contact point data - World Space
-	glm::vec3 ContactPositionA_WS;
-	glm::vec3 ContactPositionB_WS;
+	vector3 ContactPositionA_WS;
+	vector3 ContactPositionB_WS;
 	// Contact point data - Local Space
-	glm::vec3 ContactPositionA_LS;
-	glm::vec3 ContactPositionB_LS;
+	vector3 ContactPositionA_LS;
+	vector3 ContactPositionB_LS;
 
 	// These 3 vectors form an orthonormal basis
-	glm::vec3 Normal; // From collider A to collider B
-	glm::vec3 Tangent1, Tangent2;
+	vector3 Normal; // From collider A to collider B
+	vector3 Tangent1, Tangent2;
 
 	float PenetrationDepth;
 };
@@ -140,3 +139,44 @@ struct ContactManifold
 		ManifoldPoints[0] = aNewContact;
 	}
 };
+
+struct Point
+{
+	vector3 position;
+	Point(vector3 p) : position(p)
+	{}
+};
+
+struct LineSegment
+{
+	Point A;
+	Point B;
+	LineSegment(vector3 a, glm::vec3 b) : A(a), B(b)
+	{}
+};
+
+// Closest point method taken from Erin Catto's GDC 2010 slides
+// Returns the closest point
+inline Point ClosestPointOnLineFromTargetPoint(LineSegment & aLine, Point & aTargetPoint, float & u, float & v)
+{
+	vector3 lineSegment = aLine.B.position - aLine.A.position;
+
+	vector3 normalized = glm::normalize(lineSegment);
+	v = glm::dot(-aLine.A.position, normalized) / glm::length(lineSegment);
+	u = glm::dot(aLine.B.position, normalized) / glm::length(lineSegment);
+	vector3 closestPoint;
+	if (u <= 0.0f)
+	{
+		closestPoint = aLine.B.position;
+	}
+	else if (v <= 0.0f)
+	{
+		closestPoint = aLine.A.position;
+	}
+	else
+	{
+		closestPoint = u * aLine.A.position + v * aLine.B.position;
+	}
+
+	return Point(closestPoint);
+}

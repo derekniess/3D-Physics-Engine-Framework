@@ -1,7 +1,17 @@
 #include "DebugFactory.h"
+#include "Engine.h"
 #include "GameObjectFactory.h"
 #include "Renderer.h"
-#include "Mesh.h"
+
+
+
+DebugFactory::DebugFactory(Engine & aEngine) : EngineHandle(aEngine)
+{
+}
+
+DebugFactory::~DebugFactory()
+{
+}
 
 // Debug objects are non-persistent so they don't need to be on the Render List
 void DebugFactory::RegisterDebugQuad(Quad & aQuad)

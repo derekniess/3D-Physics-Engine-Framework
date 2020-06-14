@@ -18,7 +18,7 @@ public:
 	
 	std::vector<DebugVertex> GridPoints;
 	std::vector<Vertex> GridVertices;
-	glm::vec3 Color = glm::vec3(1, 0, 0);
+	vector3 Color = vector3(1, 0, 0);
 	GLuint VAO;
 	GLuint VBO;
 
@@ -63,10 +63,10 @@ public:
 				Vertex newGridVertex;
 				newGridVertex.Color = GridPoints[index].Color;
 
-				glm::vec3 vertexA;
-				glm::vec3 vertexB;
-				glm::vec3 vertexC;
-				glm::vec3 vertexD;
+				vector3 vertexA;
+				vector3 vertexB;
+				vector3 vertexC;
+				vector3 vertexD;
 				ComputePointCoordinates(a, vertexA);
 				ComputePointCoordinates(b, vertexB);
 				ComputePointCoordinates(c, vertexC);
@@ -98,13 +98,13 @@ public:
 	}
 	inline void ComputePointCoordinates(int aIndex, glm::vec3 & aPoint)
 	{
-		glm::vec3 temp = ComputePointCoordinates(aIndex);
+		vector3 temp = ComputePointCoordinates(aIndex);
 		aPoint = temp;
 	}
 
-	inline glm::vec3 ComputePointCoordinates(int aIndex)
+	inline vector3 ComputePointCoordinates(int aIndex)
 	{
-		glm::vec3 point(0);
+		vector3 point(0);
 		float width = SpacingX * (SectionsX - 1);
 		float height = SpacingY * (SectionsY - 1);
 		float minX = -width / 2;

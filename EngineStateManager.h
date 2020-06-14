@@ -1,6 +1,7 @@
 #pragma once
-#include "Engine.h"
 #include "Observer.h"
+
+class Engine;
 
 class EngineStateManager : public Observer
 {
@@ -14,7 +15,9 @@ public:
 	bool bShouldRenderMinkowskiDifference = false;
 	// Physics variables
 	int NumberofIterations;
-	bool bShouldRenderSimplex = true;
+	bool bShouldSimulationRun = true;
+	bool bContactDebugModeEnabled = false;
+	bool bShouldRenderSimplex = false;
 	bool bUseEulerIntegration = true;
 	bool bUseVerletIntegration = false;
 	bool bUseRK4Integration = false;

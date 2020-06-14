@@ -51,7 +51,7 @@ void ContactConstraint::CalculateJacobian()
 float ContactConstraint::Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aCurrentVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector)
 {
 	float constraintError = 0.0f; 
-
+	CalculateInverseMassMatrices();
 	/* -- Calculate constraint error from position constraint equation Cn = (x2 +r2 −x1 −r1) * n1 -- */
 	glm::vec3 & centerOfMassA = ColliderA->pOwner->GetComponent<Transform>()->GetPosition();
 	glm::vec3 momentArmA = ConstraintData.ContactPositionA_WS - centerOfMassA;
@@ -81,7 +81,7 @@ float ContactConstraint::Solve(float aTimestep, std::vector<Eigen::Matrix<float,
 
 	float projection = glm::dot(relativeVelocity, ConstraintData.Normal);
 	// If relative velocity is separating the objects, constraint is solved
-	if (projection > 0.0f)
+  	if (projection > 0.0f)
 	{
 		DeltaLambda = 0.0f;
 		return DeltaLambda;

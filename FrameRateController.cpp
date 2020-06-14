@@ -1,4 +1,5 @@
 #include "FrameRateController.h"
+#include "Engine.h"
 
 void FramerateController::InitializeFrameRateController()
 {

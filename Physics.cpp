@@ -70,7 +70,7 @@ void Physics::IntegrateEuler(float dt)
 
 	PreviousAngularVelocity = CurrentAngularVelocity;
 	// Integrate torque and angular velocity
-	glm::vec3 axis = CurrentAngularVelocity;
+	vector3 axis = CurrentAngularVelocity;
 	float length = glm::length(CurrentAngularVelocity);
 	float angle = length * dt;
 	// Prevents degenerate quaternions
@@ -78,7 +78,7 @@ void Physics::IntegrateEuler(float dt)
 	{
 		// Normalize axis
 		axis = axis / length;
-		glm::quat rotationDelta(std::cos(angle / 2.0f), axis * std::sin(angle / 2.0f));
+		quaternion rotationDelta(std::cos(angle / 2.0f), axis * std::sin(angle / 2.0f));
 
 		// Update rotation directly
 		Transform & transform = *(pOwner->GetComponent<Transform>());

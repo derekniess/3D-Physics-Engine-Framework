@@ -1,5 +1,7 @@
-#include "EngineStateManager.h"
 #include "InputManager.h"
+#include "Engine.h"
+#include "EngineStateManager.h"
+
 
 void EngineStateManager::OnNotify(Event * aEvent)
 {

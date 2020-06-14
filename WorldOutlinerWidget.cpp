@@ -4,6 +4,7 @@
 #include "WindowManager.h"
 #include "GameObjectFactory.h"
 #include "InputManager.h"
+#include "Engine.h"
 
 bool WorldOutlinerWidget::DrawWidget()
 {

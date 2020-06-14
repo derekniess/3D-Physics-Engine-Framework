@@ -32,12 +32,14 @@ public:
 	char * pComponentName;
 	/*----------MEMBER FUNCTIONS----------*/
 private:
-	virtual void Deserialize(TextFileData aTextData) = 0;
+
 	virtual void HandleEvent(Event *pEvent) {}
 protected:	// Made protected because we don't want external visibility of constructor, but derived classes can access it
 	Component(ComponentType type) : eComponentType(type) {}
 public:
 	virtual ~Component() {}
+	virtual void Deserialize(TextFileData & aTextData) = 0;
+	virtual void Serialize(TextFileData & aTextData) = 0;
 
 	inline ComponentType GetComponentType() { return eComponentType; }
 	inline GameObject * GetOwner() { return pOwner; }
@@ -45,5 +47,5 @@ public:
 
 	virtual void Initialize() {};
 	virtual void Destroy() {};
-	virtual void Update() = 0;
+	virtual void Update() {};
 };

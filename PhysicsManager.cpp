@@ -6,6 +6,7 @@
 #include "FrameRateController.h"
 #include "DebugFactory.h"
 #include "EngineStateManager.h"
+#include "Engine.h"
 
 #include "GameObject.h"
 
@@ -19,20 +20,22 @@
 #include "MathUtilities.h"
 
 int PhysicsManager::IntegratorIterations = 1;
-
 void PhysicsManager::Update()
 {
 	// Three Stages
 	// Simulation : Update the state of all Physics objects
-	if (bShouldSimulate == true)
+	if (EngineHandle.GetEngineStateManager().bShouldSimulationRun == true)
 		Simulation();
+
+	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_LEFT_ALT) == true)
+		EngineHandle.GetEngineStateManager().bShouldSimulationRun = true;
 
 	// Collision Detection : Check every Collider for collision against every other Collider
 	DetectCollision();
 
 	// Constraint Resolution: Solve all the constraints that were violated this frame using sequential impulse solver
 	// http://www.bulletphysics.com/ftp/pub/test/physics/papers/IterativeDynamics.pdf
-	if(bShouldSimulate == true)
+	if(EngineHandle.GetEngineStateManager().bShouldSimulationRun == true)
 		SolveConstraints();
 }
 
@@ -53,10 +56,10 @@ void PhysicsManager::DetectCollision()
 
 			ContactData newContactData;
 			// Calculate the model matrices and store in contact data for future use
-			glm::mat4 model1, model2;
-			glm::mat4 translate = glm::translate(transform1->GetPosition());
-			glm::mat4 rotate = glm::mat4_cast(transform1->GetRotation());
-			glm::mat4 scale = glm::scale(transform1->GetScale());
+			matrix4 model1, model2;
+			matrix4 translate = glm::translate(transform1->GetPosition());
+			matrix4 rotate = glm::mat4_cast(transform1->GetRotation());
+			matrix4 scale = glm::scale(transform1->GetScale());
 			model1 = translate * rotate * scale;
 
 			translate = glm::translate(transform2->GetPosition());
@@ -122,12 +125,12 @@ void PhysicsManager::DetectCollision()
 				}
 
 				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
-				mesh1->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
+				mesh1->SetVertexColorsUniform(vector3(1.0f, 0.0f, 0.0f));
 
 				Primitive * mesh2 = collider2->GetOwner()->GetComponent<Primitive>();
-				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
+				mesh2->SetVertexColorsUniform(vector3(1.0f, 0.0f, 0.0f));
 
-				glm::vec3 endPoint = newContactData.ContactPositionA_WS + newContactData.PenetrationDepth * newContactData.Normal;
+				glm::vec3 endPoint = newContactData.ContactPositionA_WS + newContactData.PenetrationDepth * glm::normalize(newContactData.Normal);
 
 				// Render contact normal
 				Arrow newDebugArrow(glm::vec3(newContactData.ContactPositionA_WS), endPoint);
@@ -140,10 +143,10 @@ void PhysicsManager::DetectCollision()
 			else
 			{
 				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
-				mesh1->SetVertexColorsUniform(glm::vec3(0.0f, 1.0f, 0.0f));
+				mesh1->SetVertexColorsUniform(vector3(0.0f, 1.0f, 0.0f));
 
 				Primitive * mesh2 = collider2->GetOwner()->GetComponent<Primitive>();
-				mesh2->SetVertexColorsUniform(glm::vec3(0.0f, 1.0f, 0.0f));
+				mesh2->SetVertexColorsUniform(vector3(0.0f, 1.0f, 0.0f));
 			}
 		}
 	}
@@ -156,10 +159,17 @@ bool PhysicsManager::GJKCollisionHandler(Collider * aCollider1, Collider * aColl
 	Physics * physics2 = aCollider2->GetOwner()->GetComponent<Physics>();
 
 	Simplex simplex;
-	// Choose initial search direction as the vector from center of Object1 to the center of Object2
-	glm::vec3 searchDirection = physics1->GetCurrentPosition() - physics2->GetCurrentPosition();
+	// Choose initial search direction as some arbitrary vector
+	vector3 searchDirection = vector3(1, 1, 1);
 	// Find farthest point along search direction to get first point on the Minkowski surface, and add it to the simplex
 	SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
+	// Stability check
+	if (glm::dot(searchDirection, newSupportPoint.MinkowskiHullVertex) >= glm::length(newSupportPoint.MinkowskiHullVertex) * 0.8f)
+	{
+		// the chosen direction is invalid, will produce (0,0,0) for a subsequent direction later
+		searchDirection = vector3(0, 1, 0);
+		newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
+	}
 	simplex.Push(newSupportPoint);
 
 	// Invert the search direction for the next point
@@ -172,79 +182,116 @@ bool PhysicsManager::GJKCollisionHandler(Collider * aCollider1, Collider * aColl
 	{
 		if (iterationCount++ >= iterationLimit) 
 			return false;
+		// Stability check
+		// Error, for some reason the direction vector is broken
+		if (glm::length(searchDirection) <= 0.0001f)
+			return false;
 
-		// Add a new point to the simplex, continuing to search for origin
+		// Add a new point to the simplex
 		SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
+		simplex.Push(newSupportPoint);
 
 		// If projection of newly added point along the search direction has not crossed the origin,
 		// the Minkowski Difference could not contain the origin, objects are not colliding
-		if (glm::dot(newSupportPoint.MinkowskiHullVertex, searchDirection) <= 0.0f)
+		if (glm::dot(newSupportPoint.MinkowskiHullVertex, searchDirection) < 0.0f)
 		{
 			return false;
 		}
 		else
 		{
-			simplex.Push(newSupportPoint);
-			//// Render simplex
-			//if (EngineHandle.GetEngineStateManager().bShouldRenderSimplex)
-			//{
-			//	LineLoop simplexDebug;
-			//	simplexDebug.AddVertex(simplex.Vertices[0].MinkowskiHullVertex);
-			//	simplexDebug.AddVertex(simplex.Vertices[1].MinkowskiHullVertex);
-			//	simplexDebug.AddVertex(simplex.Vertices[2].MinkowskiHullVertex);
-			//	simplexDebug.AddVertex(simplex.Vertices[3].MinkowskiHullVertex);
-			//	EngineHandle.GetDebugFactory().RegisterDebugLineLoop(simplexDebug);
-			//}
-			// If the new point IS past the origin, check if the simplex contains the origin
+			// Render simplex
+ 			if (EngineHandle.GetEngineStateManager().bShouldRenderSimplex)
+ 			{
+ 				LineLoop simplexDebug;
+ 				for(int i = 0; i < simplex.Size; ++i)
+ 					simplexDebug.AddVertex(simplex.Vertices[i].MinkowskiHullVertex);
+ 
+ 				EngineHandle.GetDebugFactory().RegisterDebugLineLoop(simplexDebug);
+ 			}
+			// If the new point IS past the origin, check if the simplex contains the origin, 
+			// If it doesn't modify search direction to point towards to origin
 			if (CheckIfSimplexContainsOrigin(simplex, searchDirection))
 			{
+				// Stops the simulation every time there is a contact if 'contact debug mode' is enabled
+				if(EngineHandle.GetEngineStateManager().bContactDebugModeEnabled == true)
+					EngineHandle.GetEngineStateManager().bShouldSimulationRun = false;
+				// Continues the simulation if currently stopped
+				if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_LEFT_ALT))
+					EngineHandle.GetEngineStateManager().bShouldSimulationRun = true;
+
+				// Run contact detection when collision is detected
 				return EPAContactDetection(simplex, aCollider1, aCollider2, aContactData);
-			} 
+			}
 		}
 	}
 }
 
 // Provides the new direction to search for the point if it isn't already within the simplex
-bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection)
+bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, vector3 & aSearchDirection)
 {
 	// Line case
 	if (aSimplex.Size == 2)
 	{
 		// Line cannot contain the origin, only search for the direction to it 
-		glm::vec3 newPointToOldPoint = aSimplex.b.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
-		glm::vec3 newPointToOrigin = glm::vec3(0.0f, 0.0f, 0.0f) - aSimplex.a.MinkowskiHullVertex;
+		vector3 newPointToOldPoint = aSimplex.b.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
+		vector3 newPointToOrigin = -aSimplex.a.MinkowskiHullVertex;
 
-		if (glm::dot(newPointToOldPoint, newPointToOrigin) > 0.0f)
+		// Method given by Erin Catto in GDC presentation
+		float u = 0.0f, v = 0.0f;
+		LineSegment lineSegment(aSimplex.a.MinkowskiHullVertex, aSimplex.b.MinkowskiHullVertex);
+		Point origin(glm::vec3(0));
+		Point closestPoint = ClosestPointOnLineFromTargetPoint(lineSegment, origin, u, v);	
+	
+		// Test vertex region of new simplex point first as highest chance to be there
+		if (v <= 0.0f)
 		{
-			// The vector from new point to old point defines the Voronoi region closest to origin
-			// Get the new search direction by triple cross product, gives the normal to the edge, that points towards origin
-			glm::vec3 newSearchDirection;
-			newSearchDirection = Utility::TripleCrossProduct(newPointToOldPoint, newPointToOrigin, newPointToOldPoint);
-			aSearchDirection = newSearchDirection;
-			// No need to change the simplex, return it as [A, B]
+			aSimplex.Set(aSimplex.a);
+			aSearchDirection = -closestPoint.position;
+			return false;
+		}
+		else if (u <= 0.0f)
+		{
+			aSimplex.Set(aSimplex.b);
+			aSearchDirection = -closestPoint.position;
 			return false;
 		}
 		else
 		{
-			// Newly added point defines the Voronoi region closest to origin, the new point is the simplex
-			aSearchDirection = newPointToOrigin;
-			aSimplex.Clear();
-			// Return it as [A]
-			aSimplex.Push(aSimplex.a);
+			aSearchDirection = -closestPoint.position;
 			return false;
 		}
+
+		// Method given by Casey Muratori, according to Dirk Gregorious it 'aggressively overoptimises' and skips some cases that need to be checked
+ 		// https://www.gamedev.net/topic/613054-gjk-caseys-way-closest-pt-illustrations/
+		//if (glm::dot(newPointToOldPoint, newPointToOrigin) > 0.0f)
+ 		//{
+ 		//	// The vector from new point to old point defines the Voronoi region closest to origin
+ 		//	// Get the new search direction by triple cross product, gives the normal to the edge, that points towards origin
+ 		//	aSearchDirection = Utility::TripleCrossProduct(newPointToOldPoint, newPointToOrigin, newPointToOldPoint);
+ 		//	// No need to change the simplex, return it as [A, B]
+ 		//	return false;
+ 		//}
+ 		//else
+ 		//{
+ 		//	// Newly added point defines the Voronoi region closest to origin, the new point is the simplex
+ 		//	aSearchDirection = newPointToOrigin;
+ 		//	aSimplex.Clear();
+ 		//	// Return it as [A]
+ 		//	aSimplex.Set(aSimplex.a);
+ 		//	return false;
+ 		//}
 	}
 	// Triangle case
 	else if (aSimplex.Size == 3)
 	{
 		// Find the newly added features
-		glm::vec3 newPointToOrigin = glm::vec3(0.0f, 0.0f, 0.0f) - aSimplex.a.MinkowskiHullVertex;
-		glm::vec3 edge1 = aSimplex.b.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
-		glm::vec3 edge2 = aSimplex.c.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
+		vector3 newPointToOrigin = -aSimplex.a.MinkowskiHullVertex;
+		vector3 edge1 = aSimplex.b.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
+		vector3 edge2 = aSimplex.c.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
 		// Find the normals to the triangle and the two edges
-		glm::vec3 triangleNormal = glm::cross(edge1, edge2);
-		glm::vec3 edge1Normal = glm::cross(edge1, triangleNormal);
-		glm::vec3 edge2Normal = glm::cross(triangleNormal, edge2);
+		vector3 triangleNormal = glm::cross(edge1, edge2);
+		vector3 edge1Normal = glm::cross(edge1, triangleNormal);
+		vector3 edge2Normal = glm::cross(triangleNormal, edge2);
 
 		// If origin is closer to the area along the second edge normal
 		if (glm::dot(edge2Normal, newPointToOrigin) > 0.0f)
@@ -276,7 +323,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 					aSearchDirection = newPointToOrigin;
 					// Return new simplex point alone [A]
 					aSimplex.Clear();
-					aSimplex.Push(aSimplex.a);
+					aSimplex.Set(aSimplex.a);
 					return false;
 				}
 			}
@@ -301,7 +348,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 					aSearchDirection = newPointToOrigin;
 					// Return new simplex point alone [A]
 					aSimplex.Clear();
-					aSimplex.Push(aSimplex.a);
+					aSimplex.Set(aSimplex.a);
 					return false;
 				}
 			}
@@ -330,15 +377,15 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 		// if it is then set the simplex equal to that triangle and continue, otherwise we know
 		// there is an intersection and exit
 
-		glm::vec3 edge1 = aSimplex.b.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
-		glm::vec3 edge2 = aSimplex.c.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
-		glm::vec3 edge3 = aSimplex.d.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
-
-		glm::vec3 face1Normal = glm::cross(edge1, edge2);
-		glm::vec3 face2Normal = glm::cross(edge2, edge3);
-		glm::vec3 face3Normal = glm::cross(edge3, edge1);
-
-		glm::vec3 newPointToOrigin = glm::vec3(0.0f) - aSimplex.a.MinkowskiHullVertex;
+		vector3 edge1 = aSimplex.b.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
+		vector3 edge2 = aSimplex.c.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
+		vector3 edge3 = aSimplex.d.MinkowskiHullVertex - aSimplex.a.MinkowskiHullVertex;
+		
+		vector3 face1Normal = glm::cross(edge1, edge2);
+		vector3 face2Normal = glm::cross(edge2, edge3);
+		vector3 face3Normal = glm::cross(edge3, edge1);
+		
+		vector3 newPointToOrigin = -aSimplex.a.MinkowskiHullVertex;
 
 		if (glm::dot(face1Normal, newPointToOrigin) > 0.0f)
 		{
@@ -369,7 +416,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 		// this is exactly the same as the triangular simplex test except that we know
 		// that the origin is not behind the triangle
 
-		glm::vec3 edge1Normal = glm::cross(edge1, face1Normal);
+		vector3 edge1Normal = glm::cross(edge1, face1Normal);
 		if (glm::dot(edge1Normal, newPointToOrigin) > 0.0f)
 		{
 			aSearchDirection = Utility::TripleCrossProduct(edge1, newPointToOrigin, edge1);
@@ -379,7 +426,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 			return false;
 		}
 
-		glm::vec3 edge2Normal = glm::cross(face1Normal, edge2);
+		vector3 edge2Normal = glm::cross(face1Normal, edge2);
 		if (glm::dot(edge2Normal, newPointToOrigin) > 0.0f)
 		{
 			aSearchDirection = Utility::TripleCrossProduct(edge2, newPointToOrigin, edge2);
@@ -441,7 +488,7 @@ void PhysicsManager::SolveConstraints()
 		// When all constraints are solved, return
 		if (ConstraintObjectsList.size() == 0)
 			return;
-		int size = ConstraintObjectsList.size();
+		int size = (int)ConstraintObjectsList.size();
 		for (int i = 0; i < ConstraintObjectsList.size(); ++i)
 		{
 			Constraint * constraint = nullptr;
@@ -486,8 +533,8 @@ void PhysicsManager::SolveConstraints()
 				Eigen::Matrix<float, 6, 1> constraintForceA = constraint->ColliderA->ContactJacobian.transpose() * deltaLambda * deltaTime;
 				Eigen::Matrix<float, 6, 1> constraintForceB = constraint->ColliderB->ContactJacobian.transpose() * deltaLambda * deltaTime;
 
- 				glm::vec3 forceA(constraintForceA(0), constraintForceA(1), constraintForceA(2)), torqueA(constraintForceA(3), constraintForceA(4), constraintForceA(5));
-				glm::vec3 forceB(constraintForceB(0), constraintForceB(1), constraintForceB(2)), torqueB(constraintForceB(3), constraintForceB(4), constraintForceB(5));
+ 				vector3 forceA(constraintForceA(0), constraintForceA(1), constraintForceA(2)), torqueA(constraintForceA(3), constraintForceA(4), constraintForceA(5));
+				vector3 forceB(constraintForceB(0), constraintForceB(1), constraintForceB(2)), torqueB(constraintForceB(3), constraintForceB(4), constraintForceB(5));
 
 				// Zero out forces if either object is static
 				if (constraint->ColliderA->eColliderType == Collider::STATIC)
@@ -509,18 +556,18 @@ void PhysicsManager::SolveConstraints()
 				physicsB.PreviousAngularVelocity = physicsB.CurrentAngularVelocity;
 
 				// Create inverse mass matrices
-				glm::mat3 inverseMassMatrixA = glm::mat3(1), inverseMassMatrixB = glm::mat3(1);
+				matrix3 inverseMassMatrixA = matrix3(1), inverseMassMatrixB = matrix3(1);
 				inverseMassMatrixA *= physicsA.InverseMass;
 				inverseMassMatrixB *= physicsB.InverseMass;
 
 				// Create inverse inertia tensors
-				glm::mat3 inverseInertiaTensorA, inverseInertiaTensorB;
+				matrix3 inverseInertiaTensorA, inverseInertiaTensorB;
 				inverseInertiaTensorA = glm::inverse(constraint->ColliderA->InertiaTensor);
 				inverseInertiaTensorB = glm::inverse(constraint->ColliderB->InertiaTensor);
 
 				// Convert from local space to world space using the 3x3 submatrix of the Rotation transform
-				glm::mat3 rotationMatrixA = glm::mat3_cast(physicsA.pOwner->GetComponent<Transform>()->Rotation);
-				glm::mat3 rotationMatrixB = glm::mat3_cast(physicsB.pOwner->GetComponent<Transform>()->Rotation);
+				matrix3 rotationMatrixA = glm::mat3_cast(physicsA.pOwner->GetComponent<Transform>()->Rotation);
+				matrix3 rotationMatrixB = glm::mat3_cast(physicsB.pOwner->GetComponent<Transform>()->Rotation);
 				inverseInertiaTensorA = rotationMatrixA * inverseInertiaTensorA * glm::transpose(rotationMatrixA);
 				inverseInertiaTensorB = rotationMatrixB * inverseInertiaTensorB *  glm::transpose(rotationMatrixB);
 
@@ -537,7 +584,7 @@ void PhysicsManager::SolveConstraints()
 // Based on the Expanding Polytope Algorithm (EPA) as described here: http://allenchou.net/2013/12/game-physics-contact-generation-epa/
 bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollider1, Collider * aCollider2, ContactData & aContactData)
 {
-	const float exitThreshold = 0.001f;
+	const float exitThreshold = 0.0001f;
 	const unsigned iterationLimit = 50;
 	unsigned iterationCount = 0;
 
@@ -549,6 +596,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollide
 	polytopeFaces.emplace_back(aSimplex.a, aSimplex.c, aSimplex.d);
 	polytopeFaces.emplace_back(aSimplex.a, aSimplex.d, aSimplex.b);
 	polytopeFaces.emplace_back(aSimplex.b, aSimplex.d, aSimplex.c);
+
 	while (true)
 	{
 		if (iterationCount++ >= iterationLimit)
@@ -556,7 +604,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollide
 			return false;
 		}
 		// Find the closest face to origin (i.e. projection of any vertex along its face normal with the least value)
-		float minimumDistance = FLT_MAX;
+		float minimumDistance = std::numeric_limits<float>::max();
 		std::list<PolytopeFace>::iterator closestFace = polytopeFaces.begin();
 		for (auto iterator = polytopeFaces.begin(); iterator != polytopeFaces.end(); ++iterator)
 		{
@@ -597,7 +645,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollide
 			EngineHandle.GetDebugFactory().RegisterDebugLineLoop(closestPolytopeFace);
 
 			if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_SPACE))
-				bShouldSimulate = false;
+				EngineHandle.GetEngineStateManager().bShouldSimulationRun = false;
 
 			return ExtrapolateContactInformation(&(*closestFace), aContactData, aCollider1->LocalToWorldMatrix, aCollider2->LocalToWorldMatrix);
 		}
@@ -606,7 +654,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollide
 		for (auto iterator = polytopeFaces.begin(); iterator != polytopeFaces.end();)
 		{
 			// A face is considered as "seen" if the new support point is on the positive halfspace of the plane defined by it
-			glm::vec3 planeVector = newPolytopePoint.MinkowskiHullVertex - iterator->Points[0].MinkowskiHullVertex;
+			vector3 planeVector = newPolytopePoint.MinkowskiHullVertex - iterator->Points[0].MinkowskiHullVertex;
 
 			if (glm::dot(iterator->FaceNormal, planeVector) > 0.0f)
 			{
@@ -636,7 +684,7 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aCollide
 // you obtain the closest face to the penetration in world space.
 // Barycentric projection allows you to save the contribution to a point 
 // in a triangle between its vertices, and you can use that to obtain the contact point in world space
-bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData, glm::mat4 & aLocalToWorldMatrixA, glm::mat4 & aLocalToWorldMatrixB)
+bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData, matrix4 & aLocalToWorldMatrixA, matrix4 & aLocalToWorldMatrixB)
 {
 	const float distanceFromOrigin = glm::dot(aClosestFace->FaceNormal, aClosestFace->Points[0].MinkowskiHullVertex);
 
@@ -649,14 +697,12 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	// thus, there is no collision here, return false
 	if (fabs(bary_u) > 1.0f || fabs(bary_v) > 1.0f || fabs(bary_w) > 1.0f)
 		return false;
-	/*if (bary_u <= 0.0f || bary_v <= 0.0f || bary_w <= 0.0f)
-		return false;*/
 	if (!MathUtilities::IsValid(bary_u) || !MathUtilities::IsValid(bary_v) || !MathUtilities::IsValid(bary_w))
 		return false;
 	// A Contact points
-	glm::vec3 supportLocal1 = aClosestFace->Points[0].Local_SupportPointA;
-	glm::vec3 supportLocal2 = aClosestFace->Points[1].Local_SupportPointA;
-	glm::vec3 supportLocal3 = aClosestFace->Points[2].Local_SupportPointA;
+	vector3 supportLocal1 = aClosestFace->Points[0].Local_SupportPointA;
+	vector3 supportLocal2 = aClosestFace->Points[1].Local_SupportPointA;
+	vector3 supportLocal3 = aClosestFace->Points[2].Local_SupportPointA;
 	// Contact point on object A in local space
 	aContactData.ContactPositionA_LS = (bary_u * supportLocal1) + (bary_v * supportLocal2) + (bary_w * supportLocal3);
 	// Contact point on object A in world space
@@ -672,7 +718,7 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	aContactData.ContactPositionB_WS = aLocalToWorldMatrixB * glm::vec4(aContactData.ContactPositionB_LS, 1);
 
 	// Contact normal
-	aContactData.Normal = aClosestFace->FaceNormal;
+	aContactData.Normal = glm::normalize(aClosestFace->FaceNormal);
 	// Penetration depth
 	aContactData.PenetrationDepth = distanceFromOrigin;
 

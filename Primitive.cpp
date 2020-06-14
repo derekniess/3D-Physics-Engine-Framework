@@ -1,11 +1,11 @@
 #include "Primitive.h"
 
 
-void Primitive::SetVertexColorsUniform(glm::vec3 aNewColor)
+void Primitive::SetVertexColorsUniform(vector3 aNewColor)
 {
 	for (int i = 0; i < Vertices.size(); ++i)
 	{
-		Vertices[i].Color = glm::vec4(aNewColor, 1);
+		Vertices[i].Color = vector4(aNewColor, 1);
 	}
 	// Rebuffer the VBO once colors have been changed
 	BindVertexData(Vertices);

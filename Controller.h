@@ -11,9 +11,9 @@ private:
 	InputManager const & InputManagerReference;
 	FramerateController const & FrameRateControllerReference;
 
-	glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 leftVector = glm::vec3(1.0f, 0.0f, 0.0f);
-	glm::vec3 forwardVector = glm::vec3(0.0f, 0.0f, -1.0f);
+	vector3 upVector = vector3(0.0f, 1.0f, 0.0f);
+	vector3 leftVector = vector3(1.0f, 0.0f, 0.0f);
+	vector3 forwardVector = vector3(0.0f, 0.0f, -1.0f);
 public:
 	float MovementSpeed = 1.f;
 	Transform * TargetTransform = nullptr;
@@ -25,7 +25,8 @@ public:
 
 	static inline ComponentType GetComponentID() { return Component::ComponentType::CONTROLLER; }
 	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::CONTROLLER]; }
-
-	virtual void Deserialize(TextFileData aTextData) override {};
 	virtual void Update() override;
+
+	virtual void Deserialize(TextFileData & aTextData) override {};
+	virtual void Serialize(TextFileData & aTextData) override {};
 };

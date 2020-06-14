@@ -16,17 +16,17 @@ void Controller::Update()
 	// Movement and rotation variants
 	if (InputManagerReference.isKeyPressed(GLFW_KEY_LEFT) && InputManagerReference.isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 	{
-		glm::quat yawRotation = glm::angleAxis(-0.1f, glm::vec3(0, 1, 0));
+		quaternion yawRotation = glm::angleAxis(-0.1f, vector3(0, 1, 0));
 		TargetTransform->Rotation *= yawRotation;
 	}
 	else if(InputManagerReference.isKeyPressed(GLFW_KEY_LEFT) && InputManagerReference.isKeyPressed(GLFW_KEY_LEFT_ALT))
 	{
-		glm::quat pitchRotation = glm::angleAxis(-0.1f, glm::vec3(1, 0, 0));
+		quaternion pitchRotation = glm::angleAxis(-0.1f, vector3(1, 0, 0));
 		TargetTransform->Rotation *= pitchRotation;
 	}
 	else if (InputManagerReference.isKeyPressed(GLFW_KEY_LEFT) && InputManagerReference.isKeyPressed(GLFW_KEY_LEFT_SHIFT))
 	{
-		glm::quat rollRotation = glm::angleAxis(-0.1f, glm::vec3(0, 0, 1));
+		quaternion rollRotation = glm::angleAxis(-0.1f, vector3(0, 0, 1));
 		TargetTransform->Rotation *= rollRotation;
 	}
 	else if (InputManagerReference.isKeyPressed(GLFW_KEY_LEFT))
@@ -37,17 +37,17 @@ void Controller::Update()
 	// Movement and rotation variants
 	if (InputManagerReference.isKeyPressed(GLFW_KEY_RIGHT) && InputManagerReference.isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 	{
-		glm::quat yawRotation = glm::angleAxis(0.1f, glm::vec3(0, 1, 0));
+		quaternion yawRotation = glm::angleAxis(0.1f, vector3(0, 1, 0));
 		TargetTransform->Rotation *= yawRotation;
 	}
 	else if (InputManagerReference.isKeyPressed(GLFW_KEY_RIGHT) && InputManagerReference.isKeyPressed(GLFW_KEY_LEFT_ALT))
 	{
-		glm::quat pitchRotation = glm::angleAxis(0.1f, glm::vec3(1, 0, 0));
+		quaternion pitchRotation = glm::angleAxis(0.1f, vector3(1, 0, 0));
 		TargetTransform->Rotation *= pitchRotation;
 	}
 	else if (InputManagerReference.isKeyPressed(GLFW_KEY_RIGHT) && InputManagerReference.isKeyPressed(GLFW_KEY_LEFT_SHIFT))
 	{
-		glm::quat rollRotation = glm::angleAxis(0.1f, glm::vec3(0, 0, 1));
+		quaternion rollRotation = glm::angleAxis(0.1f, vector3(0, 0, 1));
 		TargetTransform->Rotation *= rollRotation;
 	}
 	else if (InputManagerReference.isKeyPressed(GLFW_KEY_RIGHT))

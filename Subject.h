@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
 
-#include "Object.h"
-#include "Observer.h"
+class Observer;
+class Event;
+class Object;
 
 // Utility class
 // Any event than can be observed or received is called a subject

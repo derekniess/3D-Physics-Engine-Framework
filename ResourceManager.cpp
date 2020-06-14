@@ -10,9 +10,13 @@
 #include <assimp/color4.h>			// Color data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
+#include "Typedefs.h"
 // Simple OpenGL Image Loader (SOIL) headers
 #include "SOIL.h"
 #include "Texture.h"
+
+// CRC32 library
+#include "crc.h"
 
 #include "Engine.h"
 #include "ResourceManager.h"
@@ -77,7 +81,7 @@ Texture * ResourceManager::LoadTexture(int width, int height, char * filename)
 	return newTexture;
 }
 
-Mesh * ResourceManager::ImportMesh(std::string & aFilename)
+Mesh * ResourceManager::ImportMesh(const char * aFilename)
 {
 	// Create an instance of the Importer class  
 	Assimp::Importer importer;  
@@ -105,9 +109,9 @@ Mesh * ResourceManager::ImportMesh(std::string & aFilename)
 		std::vector<Vertex> importedVertexData;
 		for (unsigned int i = 0; i < importedMesh->mNumVertices; ++i)
 		{
-			glm::vec3 newVertexPosition, newVertexNormal;
-			glm::vec4 newVertexColor;
-			glm::vec2 newVertexUV;
+			vector3 newVertexPosition, newVertexNormal;
+			vector4 newVertexColor;
+			vector2 newVertexUV;
 
 			// Positions
 			newVertexPosition.x = importedMesh->mVertices[i].x;
@@ -185,9 +189,9 @@ std::vector<DebugVertex> ResourceManager::ImportColliderData(std::string & aFile
 		std::vector<DebugVertex> importedColliderData;
 		for (unsigned int i = 0; i < importedMesh->mNumVertices; ++i)
 		{
-			glm::vec3 newVertexPosition, newVertexNormal;
-			glm::vec4 newVertexColor;
-			glm::vec2 newVertexUV;
+			vector3 newVertexPosition, newVertexNormal;
+			vector4 newVertexColor;
+			vector2 newVertexUV;
 
 			// Positions
 			newVertexPosition.x = importedMesh->mVertices[i].x;
@@ -236,6 +240,19 @@ std::vector<DebugVertex> ResourceManager::ImportColliderData(std::string & aFile
 	}
 }
 
+void ResourceManager::CreateArchteypeFromGameObject(GameObject * aGameObject, const char * aArchetypeName)
+{
+	TextFileData newArchetypeFile = LoadTextFile(aArchetypeName, AccessType::WRITE);
+
+	//json newArchetypeFile;
+
+	auto & componentList = aGameObject->ComponentList;
+	for(int i = 0; i < componentList.size(); ++i)
+	{
+		componentList[i]->Serialize(newArchetypeFile);
+	}
+}
+
 void ResourceManager::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
@@ -245,6 +262,7 @@ void ResourceManager::OnNotify(Event * aEvent)
 		if (engineEvent->EventID == EngineEvent::EventList::ENGINE_LOAD)
 		{
 			LoadTexture(256, 256, "..\\Resources\\Flare.png");
+			crcInit();
 		}
 	}
 }

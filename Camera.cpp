@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Engine.h"
 
 void Camera::OnNotify(Event * aEvent)
 {
@@ -19,7 +20,7 @@ void Camera::OnNotify(Event * aEvent)
 void Camera::Update()
 {
 	float cameraSpeed = 10.0f * FrameControllerReference.DeltaTime;
-	glm::vec3 cameraTranslation;
+	vector3 cameraTranslation;
 	switch (Type)
 	{
 		case CameraType::FREE:

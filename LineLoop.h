@@ -1,6 +1,5 @@
 #pragma once
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include "Typedefs.h"
 #include <vector>
 
 struct LineLoop
@@ -8,15 +7,15 @@ struct LineLoop
 public:
 	LineLoop() {}
 	std::vector<DebugVertex> LineLoopVertices;
-	glm::vec4 Color = glm::vec4(1, 0, 0, 1);
+	vector4 Color = vector4(1, 0, 0, 1);
 	GLuint VAO;
 	GLuint VBO;
 	// Index of slot this primitive occupies in renderer registry 
 	int RegistryID;
-	inline void AddVertex(glm::vec3 &aPosition)
+	inline void AddVertex(vector3 &aPosition)
 	{
 		// Don't add degenerate values
-		if (aPosition == glm::vec3(0, 0, 0))
+		if (aPosition == vector3(0, 0, 0))
 			return;
 		DebugVertex newVertex(aPosition, Color);
 		LineLoopVertices.push_back(newVertex);

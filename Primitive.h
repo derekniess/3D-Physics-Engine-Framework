@@ -7,7 +7,7 @@
 #include "Component.h"
 #include "Subject.h"
 #include "Vertex.h"
-
+#include "Event.h"
 #include "Renderer.h"
 
 class Primitive;
@@ -46,11 +46,12 @@ public:
 	GLuint TBO;
 	GLuint VAO;
 	GLuint VBO;
-	bool bShouldRenderDebug = true;
 	std::vector<Vertex> Vertices;
 
 	bool bIsBound;
 	bool bIsDebug;
+	bool bShouldRenderWireframe = true;
+	bool bIsWireframePrimitive = false;
 	PrimitiveType ePrimitiveType;
 	Renderer::PrimitiveDataType ePrimitiveDataType;
 
@@ -90,7 +91,9 @@ public:
 	// Used to send renderer requests for textures
 	Subject TextureRequest;
 
-	void Deserialize(TextFileData aTextData) {};
+	virtual void Deserialize(TextFileData & aTextData) override {};
+	virtual void Serialize(TextFileData & aTextData) override {};
+
 	void Update();
 	// Unbuffers the vertex data
 	void Debuffer();

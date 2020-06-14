@@ -1,26 +1,18 @@
 #pragma once
-// C++ header files
-#include <iostream>
-#include <fstream>
-#include <list>
-// Math header files
-#include "glm/vec2.hpp"
-#include "glm/mat3x3.hpp"
-// Manager header file
-#include "WindowManager.h"
-#include "ResourceManager.h"
-// Entity classes
-#include "GameObject.h"
+#include "Typedefs.h"
+// GLEW
+#include <GL/glew.h>
+// GLFW
+#include <GLFW/glfw3.h>
+
 #include "Observer.h"
-#include "Camera.h"
-//Component Files
-#include "Component.h"
-#include "Transform.h"
 // Render utilities
 #include "ShaderProgram.h"
 
 class Primitive;
 class Light;
+class Camera;
+class Engine;
 
 class Renderer : public Observer
 {
@@ -169,6 +161,18 @@ public:
 	void RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex);
 	
 	void RenderLightSources(GLint aMVPAttributeIndex);
+
+	// Utility functions
+	inline void SetRenderModeWireframe()
+	{
+		glLineWidth((GLfloat)WireframeThickness);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	inline void SetRenderModeFill()
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 
 	static void check_gl_error_render()
 	{

@@ -3,6 +3,7 @@
 #include "GameObject.h"
 
 class Transform;
+class InputManager;
 
 class WorldOutlinerWidget : public ImGuiWidget
 {

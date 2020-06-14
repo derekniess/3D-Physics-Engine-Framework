@@ -1,10 +1,10 @@
 #include "InputManager.h"
 #include "WindowManager.h"
-#include "glfw\glfw3.h"
+#include "Engine.h"
 // Static member initialization
-glm::vec2 InputManager::CurrentScrollDirection = glm::vec2(0);
-glm::vec2 InputManager::PreviousScrollDirection;
-glm::vec2 InputManager::ScrollDelta;
+vector2 InputManager::CurrentScrollDirection = vector2(0);
+vector2 InputManager::PreviousScrollDirection;
+vector2 InputManager::ScrollDelta;
 
 // Function called whenever a scrolling device (mouse wheel, touchpad) is used
 void InputManager::ScrollCallback(GLFWwindow * aWindow, double aXOffset, double aYOffset)
@@ -52,11 +52,11 @@ void InputManager::HideCursor()
 }
 
 
-glm::vec2 InputManager::GetMousePosition()
+vector2 InputManager::GetMousePosition()
 {
 	double screenXPosition, screenYPosition;
 	glfwGetCursorPos(EngineHandle.GetWindowManager().GetWindow(), &screenXPosition, &screenYPosition);
-	return glm::vec2(screenXPosition, screenYPosition);
+	return vector2(screenXPosition, screenYPosition);
 }
 
 

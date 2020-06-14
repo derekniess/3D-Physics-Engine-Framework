@@ -1,6 +1,5 @@
 #pragma once
-#include <glm/vec3.hpp>
-#include <glm/mat3x3.hpp>
+#include "Typedefs.h"
 #include "Component.h"
 
 class Physics : public Component
@@ -9,26 +8,26 @@ public:
 	/* -------- VARIABLES ---------- */
 	struct Derivative
 	{
-		glm::vec3 mDerivedVelocity;
-		glm::vec3 mDerivedAcceleration;
+		vector3 mDerivedVelocity;
+		vector3 mDerivedAcceleration;
 		Derivative()
 		{
-			mDerivedAcceleration= glm::vec3();
-			mDerivedVelocity = glm::vec3();
+			mDerivedAcceleration= vector3();
+			mDerivedVelocity = vector3();
 		}
 	};
-	glm::vec3 NextPosition = glm::vec3();
-	glm::vec3 CurrentPosition = glm::vec3();
-	glm::vec3 PreviousPosition = glm::vec3();
+	vector3 NextPosition = vector3();
+	vector3 CurrentPosition = vector3();
+	vector3 PreviousPosition = vector3();
 
-	glm::vec3 CurrentLinearVelocity = glm::vec3();
-	glm::vec3 PreviousLinearVelocity = glm::vec3();
+	vector3 CurrentLinearVelocity = vector3();
+	vector3 PreviousLinearVelocity = vector3();
 
-	glm::vec3 CurrentAngularVelocity = glm::vec3();
-	glm::vec3 PreviousAngularVelocity = glm::vec3();
+	vector3 CurrentAngularVelocity = vector3();
+	vector3 PreviousAngularVelocity = vector3();
 
-	glm::vec3 Force = glm::vec3();
-	glm::vec3 Torque = glm::vec3();
+	vector3 Force = vector3();
+	vector3 Torque = vector3();
 
 	float Mass = 1.0f;
 	float InverseMass = 1.0f/Mass;
@@ -39,25 +38,24 @@ public:
 	
 	Physics() : Component(Component::PHYSICS)
 	{}
-	~Physics() {}
 	
 	static inline Component::ComponentType GetComponentID() { return (ComponentType::PHYSICS); }
 	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::PHYSICS]; }
 
 	// GETTERS
 	inline float GetMass() { return Mass; }
-	inline glm::vec3 GetCurrentPosition() { return CurrentPosition; }
-	inline glm::vec3 GetVelocity() { return CurrentLinearVelocity; }
+	inline vector3 GetCurrentPosition() { return CurrentPosition; }
+	inline vector3 GetVelocity() { return CurrentLinearVelocity; }
 	// SETTERS
 	inline void SetMass(float mass) { Mass = mass; InverseMass = 1 / Mass; }
-	inline void SetCurrentPosition(glm::vec3 position) { CurrentPosition = position; }
-	inline void SetNextPosition(glm::vec3 position) { NextPosition = position; }
-	inline void ApplyForce(glm::vec3 newForce) { Force += newForce; }
+	inline void SetCurrentPosition(vector3 position) { CurrentPosition = position; }
+	inline void SetNextPosition(vector3 position) { NextPosition = position; }
+	inline void ApplyForce(vector3 newForce) { Force += newForce; }
 
 	virtual void Initialize() override;
-	virtual void Update() override {}
-	virtual void Deserialize(TextFileData aTextFileData) override {};
-	
+	virtual void Deserialize(TextFileData & aTextFileData) override {};
+	virtual void Serialize(TextFileData & aTextFileData) override {};
+
 	// Used at start of frame to sync physics with transforms (for updates from editor)
 	void SyncPhysicsWithTransform();
 	// Used at end of frame to sync transform to updated physics values

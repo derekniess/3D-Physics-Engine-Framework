@@ -8,10 +8,7 @@
 #include <iterator>
 #include <cassert>
 #include <sstream>
-// GLM Math header files
-#include <glm/gtc/quaternion.hpp>
-#include <glm/mat3x3.hpp>
-#include <glm/vec3.hpp>
+#include "Typedefs.h"
 // Component header files
 #include "Component.h"
 
@@ -19,15 +16,15 @@ class Transform : public Component
 {
 	/*----------MEMBER VARIABLES----------*/
 public:
-	glm::vec3 Position;			
-	glm::quat Rotation;			
-	glm::vec3 Scale;			
+	vector3 Position;			
+	quaternion Rotation;			
+	vector3 Scale;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Transform() : Component(ComponentType::TRANSFORM), 
-		Position(glm::vec3(0)),
-		Rotation(glm::quat()),
-		Scale(glm::vec3(1)) 
+		Position(vector3(0)),
+		Rotation(quaternion()),
+		Scale(vector3(1)) 
 	{}
 	Transform(Transform const & CopyTransform) : Component(ComponentType::TRANSFORM) 
 	{ 
@@ -40,19 +37,20 @@ public:
 	static inline Component::ComponentType GetComponentID() { return (ComponentType::TRANSFORM); }
 	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::TRANSFORM]; }
 
-	inline glm::vec3 GetPosition() { return Position; }
-	inline glm::quat GetRotation() { return Rotation; }
-	inline glm::vec3 GetScale() { return Scale; }
+	inline vector3 GetPosition() { return Position; }
+	inline quaternion GetRotation() { return Rotation; }
+	inline vector3 GetScale() { return Scale; }
 
-	inline void SetPosition(glm::vec3 newPosition) { Position = newPosition; }
-	inline void SetRotation(glm::quat newRotation) { Rotation = newRotation; }
-	inline void SetScale(glm::vec3 newScale) { Scale = newScale; }
+	inline void SetPosition(vector3 newPosition) { Position = newPosition; }
+	inline void SetRotation(quaternion newRotation) { Rotation = newRotation; }
+	inline void SetScale(vector3 newScale) { Scale = newScale; }
 	// Rotates this transform using the provided quaternion
-	inline void Rotate(glm::quat aQuat) { 
+	inline void Rotate(quaternion aQuat) { 
 		Rotation = Rotation * aQuat; 
 	}
 
-	virtual void Deserialize(TextFileData aTextFileData) override;
+	virtual void Deserialize(TextFileData & aTextFileData) override;
+	virtual void Serialize(TextFileData & aTextData) override {};
 	virtual void Update() override;
 
 };

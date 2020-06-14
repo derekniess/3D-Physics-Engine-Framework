@@ -1,8 +1,9 @@
 #include <cstdio>
-
 #include "GameObjectFactory.h"
 #include "ResourceManager.h"
 #include "Mesh.h"
+#include "Engine.h"
+
 GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileName)
 {
 	// Create game object with default transform
@@ -13,7 +14,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 	// Add component pointer to newly created game object
 	newGameObject->AddComponent(rootComponent);
 
-	rootComponent->SetScale(glm::vec3(3));
+	rootComponent->SetScale(vector3(3));
 	// Read archetype data from file
 	TextFileData archetypeData;
 	archetypeData = EngineHandle.GetResourceManager().LoadTextFile(aFileName, READ);

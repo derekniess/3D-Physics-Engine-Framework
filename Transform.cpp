@@ -1,7 +1,7 @@
 #include "Transform.h"
 
 
-void Transform::Deserialize(TextFileData aTextData)
+void Transform::Deserialize(TextFileData & aTextData)
 {
 	// Get reference to data
 	char * transformTextData = aTextData.pData;
@@ -34,7 +34,7 @@ void Transform::Deserialize(TextFileData aTextData)
 			// Loop until reach the end of each line
 			while (transformTextData[counterText] != '\n')
 			{
-				glm::vec3 newPosition;
+				vector3 newPosition;
 				for (int i = 0; i < 3; ++i)
 				{
 					float value = 0.0f;
@@ -60,7 +60,7 @@ void Transform::Deserialize(TextFileData aTextData)
 			// Loop until reach the end of each line
 			while (transformTextData[counterText] != '\n')
 			{
-				glm::vec3 newRotation;
+				vector3 newRotation;
 				for (int i = 0; i < 3; ++i)
 				{
 					float value = 0.0f;
@@ -86,7 +86,7 @@ void Transform::Deserialize(TextFileData aTextData)
 			// Loop until reach the end of each line
 			while (transformTextData[counterText] != '\n')
 			{
-				glm::vec3 newScale;
+				vector3 newScale;
 				for (int i = 0; i < 3; ++i)
 				{
 					float value = 0.0f;

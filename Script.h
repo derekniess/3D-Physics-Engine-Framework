@@ -18,8 +18,9 @@ public:
 
 	static inline ComponentType GetComponentID() { return Component::ComponentType::SCRIPT; }
 
-	virtual void Deserialize(TextFileData aTextData) override {};
-	
+	virtual void Deserialize(TextFileData & aTextData) override {};
+	virtual void Serialize(TextFileData & aTextData) override {};
+
 	// Binds a chosen ScriptBehavior to this Script
 	inline void SetBehavior(ScriptBehavior * aScriptBehavior) {
 		pScriptBehavior = aScriptBehavior;

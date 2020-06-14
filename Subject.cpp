@@ -1,4 +1,5 @@
 #include "Subject.h"
+#include "Observer.h"
 
 void Subject::NotifyAllObservers(Event * aEvent)
 {

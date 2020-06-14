@@ -2,6 +2,7 @@
 #include "Observer.h"
 #include "GameObject.h"
 #include "PhysicsUtilities.h"
+#include "Typedefs.h"
 
 class CollideEvent : public Event
 {
@@ -18,6 +19,7 @@ class InputManager;
 class Physics;
 class Collider;
 class Constraint;
+class Engine;
 
 class PhysicsManager : public Observer
 {
@@ -29,8 +31,6 @@ public:
 	float BaumgarteScalar = 0.0035f;
 	float PenetrationSlop = 0.0005f;
 	float RestitutionSlop = 0.5f;
-
-	bool bShouldSimulate = true;
 	/*---ENGINE REFERENCE ---*/
 	Engine & EngineHandle;
 
@@ -58,8 +58,8 @@ public:
 	void DetectCollision();
 	bool GJKCollisionHandler(Collider * aCollider1, Collider * aCollider2, ContactData & aContactData);
 	bool EPAContactDetection(Simplex & aSimplex, Collider * aShape1, Collider * aShape2, ContactData & aContactData);
-	bool ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData, glm::mat4 & aLocalToWorldMatrixA, glm::mat4 & aLocalToWorldMatrixB);
-	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
+	bool ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData, matrix4 & aLocalToWorldMatrixA, matrix4 & aLocalToWorldMatrixB);
+	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, vector3 & aSearchDirection);
 
 	// Resolves pairwise constraints that are violated
 	void SolveConstraints();

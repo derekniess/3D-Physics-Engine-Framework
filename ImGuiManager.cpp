@@ -1,5 +1,6 @@
 #include "ImGuiManager.h"
 #include "WindowManager.h"
+#include "Engine.h"
 
 // Widgets
 #include "WindowMenuBarWidget.h"

@@ -3,8 +3,10 @@
 // GLEW
 #include <GL/glew.h>
 
+#include "Engine.h"
 #include "ShaderProgram.h"
 #include "Renderer.h"
+#include "ResourceManager.h"
 // explanation here: https://youtu.be/6ByZWqPzI70?list=PLRwVmtr-pp06qT6ckboaOhnm9FxmzHpbY
 bool checkStatus(GLuint objectID, PFNGLGETSHADERIVPROC objPropGetterFunc, PFNGLGETSHADERINFOLOGPROC getInfoLogFunc, GLenum statusType)
 {

@@ -1,5 +1,8 @@
 #pragma once
-#include "Engine.h"
+#include "Observer.h"
+
+class Engine;
+
 class FramerateController : public Observer
 {
 	/*----------MEMBER FUNCTIONS----------*/

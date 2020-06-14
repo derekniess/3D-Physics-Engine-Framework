@@ -1,29 +1,19 @@
 #pragma once
-// Components
-#include "Primitive.h"
-//Entities
-#include "GameObject.h"
+#include "Observer.h"
 // Render Utilities
 #include "Arrow.h"
 #include "LineLoop.h"
 #include "Quad.h"
 
+class Engine;
+class GameObject;
+
 class DebugFactory : public Observer
 {
-	/*----------MEMBER VARIABLES----------*/
-public:
-	Engine & EngineHandle;
-
-	GameObject * MinkowskiDifference;
-	std::vector<Arrow> DebugArrowsStack;
-	std::vector<Quad> DebugQuadsStack;
-	std::vector<LineLoop> DebugLineLoopsStack;
-
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	DebugFactory(Engine & aEngine) : EngineHandle(aEngine)
-	{}
-
+	DebugFactory(Engine & aEngine);
+	~DebugFactory();
 	// Pushes debug line onto a stack of arrows to be drawn
 	void RegisterDebugArrow(Arrow & aLine);
 	// Pushes debug line loop onto a stack of line loops to be drawn
@@ -32,6 +22,12 @@ public:
 	void RegisterDebugQuad(Quad & aQuad);
 
 	virtual void OnNotify(Event * aEvent) override;
+	/*----------MEMBER VARIABLES----------*/
+public:
+	Engine & EngineHandle;
 
-	virtual ~DebugFactory() {};
+	GameObject * MinkowskiDifference;
+	std::vector<Arrow> DebugArrowsStack;
+	std::vector<Quad> DebugQuadsStack;
+	std::vector<LineLoop> DebugLineLoopsStack;
 };

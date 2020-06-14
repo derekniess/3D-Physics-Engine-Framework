@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.h"
-#include "Event.h"
+
+class Event;
 
 // Abstract base class
 // An observer is an object that can listen to other objects

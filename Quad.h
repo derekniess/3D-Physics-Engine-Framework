@@ -1,19 +1,18 @@
 #pragma once
 #include <GL/glew.h>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include "Typedefs.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
 struct Quad
 {
-	glm::vec3 WorldPosition = glm::vec3(0);
+	vector3 WorldPosition = vector3(0);
 	float Scale = 1.0f;
 	static const int VertexCount = 6;
-	glm::vec3 Color = glm::vec3(0, 0, 1); 
+	vector3 Color = vector3(0, 0, 1); 
 	GLuint VAO;
 	GLuint VBO;
-	Quad(glm::vec3 aPosition) :
+	Quad(vector3 aPosition) :
 		WorldPosition(aPosition)
 	{} 
 

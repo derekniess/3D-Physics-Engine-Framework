@@ -12,17 +12,8 @@
 #include "Event.h"
 #include "Subject.h"
 
-// Forward Declarations
-class WindowManager;
-class InputManager;
-class FramerateController;
-class ResourceManager;
-class Renderer;
-class PhysicsManager;
-class ImGuiManager;
-class EngineStateManager;
-class DebugFactory;
-class GameObjectFactory;
+/* Forward Declarations */
+#include "EngineForward.h"
 
 // The main engine events that have Subjects created from the start
 class EngineEvent : public Event
@@ -37,14 +28,12 @@ public:
 		ENGINE_EXIT
 	};
 	EventList EventID;
-	EngineEvent() {};
-	~EngineEvent() {};
 };
 
 class Engine : public Object
 {
 	/*----------MEMBER VARIABLES----------*/
-	private:
+private:
 	std::unique_ptr<WindowManager> pWindowManager;
 	std::unique_ptr<InputManager> pInputManager;
 	std::unique_ptr<FramerateController> pFrameRateController;
@@ -62,6 +51,7 @@ class Engine : public Object
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Engine();
+	~Engine();
 	// Initialize all managers, factories and high level systems
 	void Init();
 	// Initialize all gameobjects, components, widgets and low level systems
@@ -69,7 +59,6 @@ public:
 	int Unload();
 	void Exit();
 	void Tick();
-	virtual ~Engine();
 	std::map<EngineEvent::EventList, Subject> & GetMainEventList() { return MainEventList; }
 
 	inline WindowManager & GetWindowManager() { return *pWindowManager; }

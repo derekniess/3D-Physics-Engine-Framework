@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
-
-#include "Engine.h"
+#include <vector>
 #include "Observer.h"
 
 // ImGui headers, for access to the ImGui namespace to anything that includes ImGuiManager
@@ -9,6 +8,7 @@
 #include "imgui_impl_glfw_gl3.h"
 
 class ImGuiWidget;
+class Engine;
 
 class ImGuiManager : public Observer
 {

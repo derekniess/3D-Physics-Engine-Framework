@@ -1,26 +1,24 @@
 #pragma once
-#include "glm/vec4.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec2.hpp"
+#include "Typedefs.h"
 
 // Vertex layout used for regular meshes
 struct Vertex
 {
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec4 Color;
-	glm::vec2 UVs;
+	vector3 Position;
+	vector3 Normal;
+	vector4 Color;
+	vector2 UVs;
 
-	Vertex(glm::vec3 aPosition, glm::vec3 aNormal, glm::vec4 aColor, glm::vec2 aUVs) : 
+	Vertex(vector3 aPosition, vector3 aNormal, vector4 aColor, vector2 aUVs) : 
 		Position(aPosition),
 		Normal(aNormal),
 		Color(aColor),
 		UVs(aUVs)
 	{}
 	Vertex() : 
-	Position(glm::vec3(0)),
-	Normal(glm::vec3(0)),
-	Color(glm::vec4(1)),
-	UVs(glm::vec2(0))
+	Position(vector3(0)),
+	Normal(vector3(0)),
+	Color(vector4(1)),
+	UVs(vector2(0))
 	{}
 };

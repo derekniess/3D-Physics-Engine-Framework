@@ -1,4 +1,5 @@
 #include "WindowMenuBarWidget.h"
+#include "Engine.h"
 
 void WindowMenuBarWidget::DrawFileMenu()
 {

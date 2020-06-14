@@ -1,11 +1,17 @@
+#include <iostream>
+
 #include "WindowManager.h"
 #include "ImGuiManager.h"
-
+#include "Engine.h"
 // Default initialize width and height
 int WindowManager::Width = 1024;
-int WindowManager::Height = 768;
+int WindowManager::Height = 768; 
 GLFWwindow * WindowManager::pWindow = nullptr;
 Subject WindowManager::WindowResize = Subject();
+
+WindowManager::WindowManager(Engine & aEngine) : EngineHandle(aEngine)
+{
+}
 
 WindowManager::~WindowManager()
 {

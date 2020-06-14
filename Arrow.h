@@ -7,15 +7,15 @@
 
 struct Arrow
 {
-	glm::vec3 PointA = glm::vec3(0);
-	glm::vec3 PointB = glm::vec3(0);
+	vector3 PointA = vector3(0);
+	vector3 PointB = vector3(0);
 	float Scale = 1.0f;
 	static int VertexCount;
-	glm::vec3 Color = glm::vec3(1, 0, 0);
+	vector3 Color = glm::vec3(1, 0, 0);
 	GLuint VAO;
 	GLuint VBO;
 	
-	Arrow(glm::vec3 aPointA, glm::vec3 aPointB)
+	Arrow(vector3 aPointA, vector3 aPointB)
 		: 
 		PointA(aPointA),
 		PointB(aPointB)
@@ -28,17 +28,17 @@ struct Arrow
 		std::vector<DebugVertex> arrowVertices;
 
 		// Arrow bar triangle 1
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.f, -0.1f, 0.f), glm::vec4(Color, 1)));
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.75f, -0.1f, 0.f), glm::vec4(Color, 1)));
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.f, 0.1f, 0.f), glm::vec4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.f, -0.1f, 0.f), vector4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.75f, -0.1f, 0.f), vector4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.f, 0.1f, 0.f), vector4(Color, 1)));
 		// Arrow bar triangle 2
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.75f, -0.1f, 0.f), glm::vec4(Color, 1)));
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.75f, 0.1f, 0.f), glm::vec4(Color, 1)));
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.f, 0.1f, 0.f), glm::vec4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.75f, -0.1f, 0.f), vector4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.75f, 0.1f, 0.f), vector4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.f, 0.1f, 0.f), vector4(Color, 1)));
 		// Arrow tip triangle
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.75f, -0.2f, 0.f), glm::vec4(Color, 1)));
-		arrowVertices.push_back(DebugVertex(glm::vec3(1.f, 0.f, 0.f), glm::vec4(Color, 1)));
-		arrowVertices.push_back(DebugVertex(glm::vec3(0.75f, 0.2f, 0.f), glm::vec4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.75f, -0.2f, 0.f), vector4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(1.f, 0.f, 0.f), vector4(Color, 1)));
+		arrowVertices.push_back(DebugVertex(vector3(0.75f, 0.2f, 0.f), vector4(Color, 1)));
 
 		GLsizei stride = sizeof(DebugVertex);
 		Scale = glm::distance(PointA, PointB);

@@ -109,6 +109,18 @@
     <Filter Include="Source Files\Components\Colliders">
       <UniqueIdentifier>{7396e9c7-19ab-47df-8c72-6332dec9a52f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders\SpecialShaders">
+      <UniqueIdentifier>{8f5f676d-b548-424f-b30b-5398c5d7b2e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Reflection">
+      <UniqueIdentifier>{cf0097df-61cd-4627-abe8-9d8e5089d448}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ForwardDeclarations">
+      <UniqueIdentifier>{831472e4-35d8-414b-88b9-819b8641e3a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{ac086d1e-e9f8-4528-ba1b-a9b61b4e42f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -234,9 +246,6 @@
     <ClInclude Include="Script.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="WaveSolver.h">
-      <Filter>Header Files\ScriptBehaviors</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptBehavior.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
@@ -254,6 +263,33 @@
     </ClInclude>
     <ClInclude Include="ContactConstraint.h">
       <Filter>Header Files\Entities\Constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="FourierWaveSolver.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="FiniteDifferenceWaveSolver.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtilities.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSourceVertexShader.glsl">
+      <Filter>Source Files\Shaders\SpecialShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Reflection.h">
+      <Filter>Header Files\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="Typedefs.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineForward.h">
+      <Filter>Header Files\ForwardDeclarations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\crc\crc.h">
+      <Filter>Dependencies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -347,9 +383,6 @@
     <ClCompile Include="DebugFactory.cpp">
       <Filter>Source Files\Factories</Filter>
     </ClCompile>
-    <ClCompile Include="WaveSolver.cpp">
-      <Filter>Source Files\ScriptBehaviors</Filter>
-    </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -361,6 +394,15 @@
     </ClCompile>
     <ClCompile Include="Constraint.cpp">
       <Filter>Source Files\Entities\Constraints</Filter>
+    </ClCompile>
+    <ClCompile Include="FourierWaveSolver.cpp">
+      <Filter>Source Files\ScriptBehaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="FiniteDifferenceWaveSolver.cpp">
+      <Filter>Source Files\ScriptBehaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependencies\crc\crc.c">
+      <Filter>Dependencies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -395,6 +437,9 @@
     <None Include="NormalsVertexShader.glsl">
       <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
     </None>
+    <None Include="LightSourceFragmentShader.glsl">
+      <Filter>Source Files\Shaders\SpecialShaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\Flare.png">
@@ -402,12 +447,12 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="3D-Physics-Engine.rc">
+    <ResourceCompile Include="PhysicsFramework.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Cube.txt">
+    <Text Include="Box.txt">
       <Filter>Header Files\Archetypes</Filter>
     </Text>
   </ItemGroup>

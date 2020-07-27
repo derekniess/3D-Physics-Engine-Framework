@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{58A49C60-1733-424D-9D69-E0B85612E57D}</ProjectGuid>
-    <RootNamespace>3D-Physics-Engine</RootNamespace>
+    <RootNamespace>PhysicsFramework</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -69,18 +69,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Derek Niess\Documents\Visual Studio 2017\Projects\3D-Physics-Engine\Dependencies\glew-2.0.0\include;C:\Users\Derek Niess\Documents\Visual Studio 2017\Projects\3D-Physics-Engine\Dependencies\glfw-3.2.1.bin.WIN64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Derek Niess\Documents\Visual Studio 2017\Projects\3D-Physics-Engine\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2017;C:\Users\Derek Niess\Documents\Visual Studio 2017\Projects\3D-Physics-Engine\Dependencies\glew-2.0.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glew-2.0.0\include;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glfw-3.2.1.bin.WIN64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glew-2.0.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies;$(ProjectDir)\..\Dependencies\assimp\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2017;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\assimp\lib64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\..\Dependencies\crc;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies;$(ProjectDir)\..\Dependencies\assimp\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\..\Dependencies\crc;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\assimp\lib64;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\assimp\include;$(ProjectDir)\..\Dependencies\SOIL\src;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies\imgui;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\Dependencies\assimp\lib64;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\assimp\include;$(ProjectDir)\..\Dependencies\SOIL\src;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies\imgui;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\assimp\lib64;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\Dependencies\assimp;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\Dependencies\crc;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -133,11 +133,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Dependencies\crc\crc.h" />
     <ClInclude Include="Box.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Constraint.h" />
     <ClInclude Include="ContactConstraint.h" />
-    <ClInclude Include="WaveSolver.h" />
+    <ClInclude Include="FiniteDifferenceWaveSolver.h" />
+    <ClInclude Include="EngineForward.h" />
+    <ClInclude Include="FourierWaveSolver.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightSourceVertexShader.glsl" />
+    <ClInclude Include="MathUtilities.h" />
+    <ClInclude Include="Reflection.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
@@ -176,6 +183,7 @@
     <ClInclude Include="TextLumpHandler.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="Typedefs.h" />
     <ClInclude Include="UtilityFunctions.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WindowManager.h" />
@@ -183,6 +191,7 @@
     <ClInclude Include="WorldOutlinerWidget.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Dependencies\crc\crc.c" />
     <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -194,6 +203,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineStateManager.cpp" />
     <ClCompile Include="Event.cpp" />
+    <ClCompile Include="FiniteDifferenceWaveSolver.cpp" />
     <ClCompile Include="FrameRateController.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectFactory.cpp" />
@@ -214,13 +224,14 @@
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UtilityFunctions.cpp" />
-    <ClCompile Include="WaveSolver.cpp" />
+    <ClCompile Include="FourierWaveSolver.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="WindowMenuBarWidget.cpp" />
     <ClCompile Include="WorldOutlinerWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="LightSourceFragmentShader.glsl" />
     <None Include="NormalsFragmentShader.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
@@ -238,10 +249,10 @@
     <Image Include="..\Resources\Flare.png" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="3D-Physics-Engine.rc" />
+    <ResourceCompile Include="PhysicsFramework.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Cube.txt" />
+    <Text Include="Box.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
